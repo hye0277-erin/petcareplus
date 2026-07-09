@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import logoUrl from "./images/logo.svg";
+import startDogUrl from "./images/start-dog-wide.png";
 import {
   Sun, ClipboardList, BarChart3, Stethoscope, Settings, PawPrint,
   Pill, Utensils, Droplets, Syringe, Footprints, ClipboardCheck, StickyNote,
   Check, Download, Upload, Pencil, Trash2, Plus, CalendarClock, Building2, X,
-  Star, Wind, Scale, Copy, ChevronRight, Activity, Camera, Bell, BellOff,
-  SlidersHorizontal,
+  Star, Wind, Scale, ChevronRight, Activity, Camera, Bell, BellOff,
+  SlidersHorizontal, Share2,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -699,7 +701,7 @@ function PhotoPicker({ photo, name, onChange }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 14 }}>
       {photo ? (
-        <img src={photo} alt="" style={{ width: 76, height: 76, borderRadius: "50%", objectFit: "cover", border: "2px solid #EAF3EC" }} />
+        <img src={photo} alt="" style={{ width: 76, height: 76, borderRadius: "50%", objectFit: "cover" }} />
       ) : (
         <div style={{ width: 76, height: 76, borderRadius: "50%", background: "#EAF3EC", display: "flex", alignItems: "center", justifyContent: "center" }}>
           {name ? <span style={{ fontSize: 28, fontWeight: 800, color: "#2F5E45" }}>{name[0]}</span> : <Camera size={26} color="#3E7C59" />}
@@ -786,6 +788,13 @@ const TEMPLATES = {
     { type: "med", name: "관절 영양제", detail: "글루코사민 등", time: "08:00", repeat: "daily" },
     { type: "walk", name: "가벼운 산책", detail: "점프·계단 자제", time: "09:00", repeat: "daily" },
     { type: "etc", name: "체중 측정", detail: "주 1회", time: "09:30", repeat: "weekdays", weekdays: [0] },
+  ],
+  "노령·컨디션 관찰": [
+    { type: "feed", name: "사료", detail: "평소 대비 섭취량 변화 확인", time: "19:30", repeat: "daily" },
+    { type: "water", name: "물 섭취량", detail: "평소 대비 변화 확인", time: "20:00", repeat: "daily" },
+    { type: "poop", name: "배변·배뇨 상태", detail: "횟수, 색, 양 확인", time: "21:00", repeat: "daily" },
+    { type: "walk", name: "활동량", detail: "기력, 걸음걸이 확인", time: "18:00", repeat: "daily" },
+    { type: "etc", name: "구강 상태", detail: "치아, 잇몸, 입 냄새 확인", time: "21:30", repeat: "daily" },
   ],
 };
 
@@ -879,6 +888,7 @@ export default function App() {
   const [tab, setTab] = useState("today");
   const [saveState, setSaveState] = useState("idle");
   const [quickOpen, setQuickOpen] = useState(false);
+  const [startReady, setStartReady] = useState(false);
   const saveTimer = useRef(null);
   const loaded = useRef(false);
 
@@ -986,7 +996,10 @@ export default function App() {
       </div>
     );
 
-  if (!data.pet) return <Onboarding onDone={(newData) => setData(newData)} />;
+  if (!data.pet) {
+    if (!startReady) return <StartScreen onStart={() => setStartReady(true)} />;
+    return <Onboarding onDone={(newData) => setData(newData)} />;
+  }
 
   const TABS = [
     ["today", "홈", Sun],
@@ -1038,8 +1051,8 @@ export default function App() {
         {alarmBanner}
         <aside style={{ width: 220, flexShrink: 0, background: "#FFF", borderRight: "1px solid #E5EAE6", padding: "22px 12px", position: "sticky", top: 0, height: "100vh", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 10px 22px" }}>
-            <PawPrint size={24} color="#3E7C59" />
-            <span style={{ fontWeight: 800, fontSize: 17 }}>아프지마</span>
+            <img src={logoUrl} alt="" style={{ width: 26, height: 26, borderRadius: 7, display: "block" }} />
+            <span style={{ fontWeight: 800, fontSize: 17 }}>PetCare<span style={{ color: "#2F6F5E", fontSize: 13, verticalAlign: "super" }}>+</span></span>
           </div>
           {TABS.map(([k, label, Icon]) => {
             const on = tab === k;
@@ -1192,6 +1205,7 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
         </>
       ) : (
         <>
+          {cat !== "memo" && <label style={S.label}>{meta.label}<RequiredMark /></label>}
           {opts && (
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
               {opts.map((o) => (
@@ -1218,7 +1232,7 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
           <div style={{ marginBottom: 14 }}>
             <KTimeSelect value={time} onChange={setTime} />
           </div>
-          <label style={S.label}>{cat === "memo" ? "내용" : "메모 (선택)"}</label>
+          <label style={S.label}>{cat === "memo" ? <>내용<RequiredMark /></> : "메모 (선택)"}</label>
           <KTextarea style={{ ...S.input, minHeight: 60, resize: "vertical", fontFamily: "inherit" }} value={memo} onChange={(e) => setMemo(e.target.value)}
             placeholder={cat === "symptom" ? "예: 노란 거품, 식후 30분" : `${petName}의 상태를 짧게 남겨보세요`} />
           <AttachmentPicker photos={photos} onChange={setPhotos} />
@@ -1228,19 +1242,104 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
   );
 }
 
+function RequiredMark() {
+  return <span style={{ color: "#E0554F", marginLeft: 4 }}>*</span>;
+}
+
+function StartScreen({ onStart }) {
+  return (
+    <div style={{ ...S.app, minHeight: "100dvh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 40%, #F6FBF7 56%, #EAF7EE 100%)" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 70, height: "58vh", background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(234,247,238,.42) 30%, #EAF7EE 100%)", zIndex: 0 }} />
+      <img
+        src={startDogUrl}
+        alt=""
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 100,
+          width: "min(160%, 760px)",
+          height: "auto",
+          maxHeight: "74vh",
+          objectFit: "contain",
+          objectPosition: "center bottom",
+          display: "block",
+          transform: "translateX(-50%)",
+          WebkitMaskImage: "linear-gradient(180deg, transparent 0%, #000 13%, #000 92%, transparent 100%)",
+          maskImage: "linear-gradient(180deg, transparent 0%, #000 13%, #000 92%, transparent 100%)",
+          zIndex: 1,
+        }}
+      />
+      <style>{`
+        @keyframes startCardFloat {
+          0%, 100% { transform: translateY(0) rotate(var(--rot)); }
+          50% { transform: translateY(-8px) rotate(var(--rot)); }
+        }
+        .start-float-card { animation: startCardFloat 4s ease-in-out infinite; will-change: transform; }
+      `}</style>
+      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "42%", zIndex: 2, "--rot": "-2deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "8px 12px", boxShadow: "0 8px 20px rgba(31,46,38,.12)" }}>
+        <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#3E7C59", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Check size={12} color="#FFF" strokeWidth={3} />
+        </div>
+        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#1F2E26" }}>아침 투약 완료 <span style={{ color: "#5F6E67", fontWeight: 500 }}>08:00</span></span>
+      </div>
+      <div className="start-float-card" style={{ position: "absolute", right: 10, top: "50%", zIndex: 2, "--rot": "1.5deg", animationDelay: "1.3s", display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "8px 12px", boxShadow: "0 8px 20px rgba(31,46,38,.12)" }}>
+        <CalendarClock size={16} color="#3E7C59" />
+        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#1F2E26" }}>다음 진료 D-8</span>
+      </div>
+      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "53%", zIndex: 2, "--rot": "-1deg", animationDelay: "2.6s", display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "8px 12px", boxShadow: "0 8px 20px rgba(31,46,38,.12)" }}>
+        <BarChart3 size={16} color="#3E7C59" />
+        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#1F2E26" }}>이번 주 케어 92%</span>
+      </div>
+      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "72px 24px 132px", boxSizing: "border-box" }}>
+        <div style={{ flexShrink: 0, position: "relative", zIndex: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 34 }}>
+            <img src={logoUrl} alt="" style={{ width: 34, height: 34, borderRadius: 8, display: "block" }} />
+            <div style={{ color: "#10231D", fontSize: 19, fontWeight: 900, letterSpacing: 0, lineHeight: 1 }}>
+              PetCare<span style={{ color: "#2F6F5E", fontSize: 15, verticalAlign: "super", marginLeft: 1 }}>+</span>
+            </div>
+          </div>
+          <h1 style={{ margin: 0, color: "#151A18", fontSize: 27, lineHeight: 1.42, fontWeight: 900, letterSpacing: 0 }}>
+            아이의 하루를,<br />놓치지 않게
+          </h1>
+          <p style={{ margin: "18px 0 0", color: "#6B7280", fontSize: 14, lineHeight: 1.7, fontWeight: 700, letterSpacing: 0 }}>
+            케어부터 진료 기록까지, PetCare+가 함께해요
+          </p>
+        </div>
+      </main>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))", background: "linear-gradient(180deg, rgba(234,247,238,0) 0%, rgba(234,247,238,.92) 28%, #EAF7EE 100%)" }}>
+        <button type="button" style={{ ...S.primaryBtn, height: 52, borderRadius: 10, boxShadow: "0 8px 18px rgba(62,124,89,.25)" }} onClick={onStart}>
+          시작하기
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ───────────── 온보딩 ───────────── */
+const ONBOARDING_DRAFT_KEY = "petcare-onboarding-draft";
+
 function Onboarding({ onDone }) {
-  const [name, setName] = useState("");
-  const [species, setSpecies] = useState("강아지");
-  const [breed, setBreed] = useState("");
-  const [age, setAge] = useState("");
-  const [tags, setTags] = useState("");
-  const [templates, setTemplates] = useState([]); // 복수 선택 가능
-  const [photo, setPhoto] = useState("");
+  const draft = (() => {
+    try { return JSON.parse(localStorage.getItem(ONBOARDING_DRAFT_KEY)) || {}; }
+    catch { return {}; }
+  })();
+  const [name, setName] = useState(draft.name || "");
+  const [species, setSpecies] = useState(draft.species || "강아지");
+  const [breed, setBreed] = useState(draft.breed || "");
+  const [age, setAge] = useState(draft.age || "");
+  const [tags, setTags] = useState(draft.tags || "");
+  const [templates, setTemplates] = useState(draft.templates || []); // 복수 선택 가능
+  const [photo, setPhoto] = useState(draft.photo || "");
+
+  useEffect(() => {
+    try { localStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify({ name, species, breed, age, tags, templates, photo })); }
+    catch { /* 용량 초과 등 - 임시 저장 실패는 무시 */ }
+  }, [name, species, breed, age, tags, templates, photo]);
 
   const start = () => {
     if (!name.trim()) return;
     const routines = templates.flatMap((t) => TEMPLATES[t].map((r) => ({ ...r, id: uid(), startDate: todayStr(), active: true })));
+    try { localStorage.removeItem(ONBOARDING_DRAFT_KEY); } catch { /* 무시 */ }
     onDone({
       ...DEFAULT_DATA,
       pet: { name: name.trim(), species, breed: breed.trim(), age: age.trim(), photo, tags: tags.split(",").map((t) => t.trim()).filter(Boolean), created: todayStr() },
@@ -1251,8 +1350,8 @@ function Onboarding({ onDone }) {
   return (
     <div style={{ ...S.app, justifyContent: "center" }}>
       <div style={{ padding: 24, maxWidth: 420, margin: "0 auto", width: "100%" }}>
-        <div style={{ textAlign: "center" }}><PawPrint size={40} color="#3E7C59" /></div>
-        <h1 style={{ textAlign: "center", fontSize: 22, color: "#1F2E26", margin: "8px 0 4px" }}>아프지마</h1>
+        <div style={{ textAlign: "center" }}><img src={logoUrl} alt="" style={{ width: 48, height: 48, borderRadius: 12, display: "inline-block" }} /></div>
+        <h1 style={{ textAlign: "center", fontSize: 22, color: "#1F2E26", margin: "8px 0 4px" }}>PetCare<span style={{ color: "#2F6F5E" }}>+</span></h1>
         <p style={{ textAlign: "center", color: "#6B7280", fontSize: 13, marginBottom: 24 }}>
           매일의 돌봄을 기록하고, 진료실에서 힘이 되도록
         </p>
@@ -1266,7 +1365,7 @@ function Onboarding({ onDone }) {
         <div style={{ fontSize: 12, color: "#9AA5A0", textAlign: "center", marginBottom: 16 }}>— 또는 직접 등록하기 —</div>
 
         <PhotoPicker photo={photo} name={name} onChange={setPhoto} />
-        <label style={S.label}>아이 이름</label>
+        <label style={S.label}>아이 이름 <span style={{ color: "#E0554F" }}>*</span></label>
         <KInput style={S.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 해피" />
         <div style={{ display: "flex", gap: 8 }}>
           <div style={{ flex: 1 }}>
@@ -1355,8 +1454,20 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
   const date = todayStr();
   const due = data.routines.filter((r) => isDue(r, date)).sort((a, b) => a.time.localeCompare(b.time));
   const logs = data.checkLogs[date] || {};
-  const doneCount = due.filter((r) => logs[r.id]?.status === "done").length;
   const [detailFor, setDetailFor] = useState(null);
+  const [editingRoutine, setEditingRoutine] = useState(null);
+  const [currentTime, setCurrentTime] = useState(nowTime());
+  const sortedDue = [...due].sort((a, b) => {
+    const group = (r) => {
+      const status = logs[r.id]?.status;
+      if (detailFor === r.id) return 0;
+      if (status === "done" || status === "skipped") return 2;
+      return minutesDiff(r.time, currentTime) > 30 ? 2 : 0;
+    };
+    const groupDiff = group(a) - group(b);
+    return groupDiff || a.time.localeCompare(b.time);
+  });
+  const doneCount = due.filter((r) => logs[r.id]?.status === "done").length;
   const upcoming = (data.nextVisits || []).filter((v) => daysBetween(date, v.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
   const nv = upcoming[0];
   const dLeft = nv ? daysBetween(date, nv.date) : null;
@@ -1372,10 +1483,33 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
       return d;
     });
 
+  useEffect(() => {
+    const tick = () => setCurrentTime(nowTime());
+    const timer = setInterval(tick, 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const overdue = due.filter((r) => !logs[r.id]?.status && detailFor !== r.id && minutesDiff(r.time, currentTime) > 30);
+    if (overdue.length === 0) return;
+    update((d) => {
+      d.checkLogs[date] = d.checkLogs[date] || {};
+      overdue.forEach((r) => {
+        if (!d.checkLogs[date][r.id]?.status) d.checkLogs[date][r.id] = { ...d.checkLogs[date][r.id], status: "skipped", time: currentTime };
+      });
+      return d;
+    });
+  }, [currentTime, date, detailFor, due, logs, update]);
+
   const toggle = (r) => {
     const cur = logs[r.id];
-    if (cur?.status === "done") setLog(r.id, null);
-    else setLog(r.id, { status: "done", time: nowTime() });
+    if (cur?.status === "done") {
+      setLog(r.id, null);
+      if (detailFor === r.id) setDetailFor(null);
+    } else {
+      setLog(r.id, { status: "done", time: nowTime() });
+      setDetailFor(r.id);
+    }
   };
 
   return (
@@ -1435,61 +1569,72 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
       )}
 
       <div>
-        {(() => {
-          const byTime = {};
-          due.forEach((r) => { (byTime[r.time] = byTime[r.time] || []).push(r); });
-          const groups = Object.keys(byTime).sort().map((t) => ({ time: t, items: byTime[t] }));
-          return groups.map((g) => {
-            const groupDone = g.items.filter((r) => logs[r.id]?.status === "done").length;
-            const allDone = groupDone === g.items.length;
-            return (
-              <div key={g.time} style={{ ...S.card, marginBottom: 10, padding: 0, overflow: "hidden" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "11px 14px", background: allDone ? "#EAF3EC" : "#F7F9F6", borderBottom: "1px solid #EEF1EE" }}>
-                  <span style={{ fontWeight: 800, fontSize: 14, color: allDone ? "#2F5E45" : "#1F2E26" }}>{g.time}</span>
-                  <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: allDone ? "#3E7C59" : "#9AA5A0" }}>{groupDone}/{g.items.length}</span>
-                </div>
-                {g.items.map((r, i) => {
-                  const log = logs[r.id];
-                  const done = log?.status === "done";
-                  const skipped = log?.status === "skipped";
-                  return (
-                    <div key={r.id} style={{ padding: "10px 14px", borderTop: i > 0 ? "1px solid #F0F3F0" : "none", background: done ? "#F7FBF8" : skipped ? "#FAFAF9" : "#FFF" }}>
-                      <div onClick={() => toggle(r)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: skipped ? 0.55 : 1 }}>
-                        <TypeIcon type={r.type} />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: 15, color: "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
-                          <div style={{ fontSize: 12, color: "#6B7280" }}>
-                            {r.detail || TYPE_META[r.type].label}
-                            {done && log.time && <span style={{ color: "#3E7C59" }}> · {log.time} 완료</span>}
-                            {log?.extra && <span> · {log.extra}</span>}
-                          </div>
-                        </div>
-                        <div style={{ width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", flexShrink: 0 }}>
-                          {done && <Check size={15} color="#FFF" strokeWidth={3} />}
-                        </div>
-                      </div>
-                      <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 42 }}>
-                        {!skipped && !done && <button style={S.miniBtn} onClick={() => setLog(r.id, { status: "skipped", time: nowTime() })}>건너뛰기</button>}
-                        {skipped && <button style={S.miniBtn} onClick={() => setLog(r.id, null)}>되돌리기</button>}
-                        {done && (
-                          <button style={S.miniBtn} onClick={() => setDetailFor(detailFor === r.id ? null : r.id)}>
-                            {log?.extra ? "상세 수정" : "+ 상세 남기기"}
-                          </button>
-                        )}
-                      </div>
-                      {detailFor === r.id && done && (
-                        <div style={{ marginLeft: 42 }}>
-                          <DetailInput type={r.type} current={log?.extra || ""} onSave={(v) => { setLog(r.id, { extra: v }); setDetailFor(null); }} />
-                        </div>
-                      )}
+        {sortedDue.map((r, idx) => {
+          const log = logs[r.id];
+          const done = log?.status === "done";
+          const skipped = log?.status === "skipped";
+          const isLast = idx === sortedDue.length - 1;
+          return (
+            <div key={r.id} style={{ position: "relative", paddingLeft: 26, paddingBottom: isLast ? 0 : 14 }}>
+              {!isLast && <div style={{ position: "absolute", left: 8, top: 18, bottom: -2, width: 1, background: "#DDE4DE" }} />}
+              <div style={{ position: "absolute", left: 3, top: 16, width: 11, height: 11, borderRadius: "50%", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", zIndex: 1 }} />
+              <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#FAFAF9" : "#FFF" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#9AA5A0", marginBottom: 6 }}>{r.time}</div>
+                <div onClick={() => toggle(r)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: skipped ? 0.55 : 1 }}>
+                  <TypeIcon type={r.type} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
+                    <div style={{ fontSize: 12, color: "#6B7280" }}>
+                      {r.detail || TYPE_META[r.type].label}
+                      {done && log.time && <span style={{ color: "#3E7C59" }}> · {log.time} 완료</span>}
                     </div>
-                  );
-                })}
+                    {log?.extra && <div style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{log.extra}</div>}
+                  </div>
+                  <button type="button" style={S.iconBtn} onClick={(e) => { e.stopPropagation(); setEditingRoutine(r); }}>
+                    <Pencil size={14} color="#6B7280" />
+                  </button>
+                  <div style={{ width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", flexShrink: 0 }}>
+                    {done && <Check size={15} color="#FFF" strokeWidth={3} />}
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 42 }}>
+                  {!skipped && !done && (
+                    <button style={S.miniBtn} onClick={() => setDetailFor(detailFor === r.id ? null : r.id)}>
+                      {log?.extra ? "상세 수정" : "+ 상세 남기기"}
+                    </button>
+                  )}
+                  {skipped && <button style={S.miniBtn} onClick={() => setLog(r.id, null)}>되돌리기</button>}
+                  {(done || skipped) && (
+                    <button style={S.miniBtn} onClick={() => setDetailFor(detailFor === r.id ? null : r.id)}>
+                      {log?.extra ? "상세 수정" : "+ 상세 남기기"}
+                    </button>
+                  )}
+                </div>
+                {detailFor === r.id && (
+                  <div style={{ marginLeft: 42 }}>
+                    <DetailInput type={r.type} current={log?.extra || ""} onSave={(v) => { setLog(r.id, { extra: v }); setDetailFor(null); }} />
+                  </div>
+                )}
               </div>
-            );
-          });
-        })()}
+            </div>
+          );
+        })}
       </div>
+
+      {editingRoutine && (
+        <RoutineEditor
+          routine={editingRoutine}
+          onSave={(list) => {
+            update((d) => { Object.assign(d.routines.find((x) => x.id === editingRoutine.id), list[0]); return d; });
+            setEditingRoutine(null);
+          }}
+          onDelete={() => {
+            update((d) => { d.routines = d.routines.filter((x) => x.id !== editingRoutine.id); return d; });
+            setEditingRoutine(null);
+          }}
+          onClose={() => setEditingRoutine(null)}
+        />
+      )}
     </div>
   );
 }
@@ -2181,7 +2326,7 @@ function ReportView({ data }) {
 }
 
 function PreVisitSummary({ data, st, medRate, compliance, onClose }) {
-  const [copied, setCopied] = useState(false);
+  const [shareState, setShareState] = useState("");
   const today = todayStr();
   const upcoming = (data.nextVisits || []).filter((v) => daysBetween(today, v.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
   const lines = [];
@@ -2204,38 +2349,65 @@ function PreVisitSummary({ data, st, medRate, compliance, onClose }) {
   }
   const text = lines.join("\n");
 
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }
-    catch { /* 클립보드 미지원 환경 */ }
+  const copyFallback = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const el = document.createElement("textarea");
+        el.value = text;
+        el.style.position = "fixed";
+        el.style.left = "-9999px";
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setShareState("copied");
+      setTimeout(() => setShareState(""), 2000);
+    } catch {
+      setShareState("error");
+      setTimeout(() => setShareState(""), 2000);
+    }
   };
 
-  const printRef = useRef(null);
-  const doPrint = () => window.print();
+  const share = async () => {
+    const canUseNativeShare =
+      navigator.share &&
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) &&
+      (!navigator.canShare || navigator.canShare({ title: `${data.pet.name} 진료 전 요약`, text }));
+
+    if (canUseNativeShare) {
+      try {
+        await navigator.share({ title: `${data.pet.name} 진료 전 요약`, text });
+        setShareState("shared");
+        setTimeout(() => setShareState(""), 2000);
+        return;
+      } catch (e) {
+        if (e?.name === "AbortError") {
+          setShareState("");
+          return;
+        }
+      }
+    }
+    copyFallback();
+  };
 
   return (
     <Modal title="진료 전 요약" onClose={onClose}
       footer={
         <>
-          <button style={{ ...S.primaryBtn, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={doPrint}>
-            <Download size={15} /> 인쇄 · PDF로 저장
-          </button>
-          <button style={{ ...S.secondaryBtn, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={copy}>
-            <Copy size={15} /> {copied ? "복사됐어요" : "텍스트로 복사하기"}
+          <button style={{ ...S.primaryBtn, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={share}>
+            <Share2 size={15} /> {shareState === "shared" ? "공유했어요" : shareState === "copied" ? "복사됐어요" : "공유하기"}
           </button>
           <p style={{ fontSize: 11, color: "#9AA5A0", marginTop: 8, marginBottom: 0, textAlign: "center", lineHeight: 1.6 }}>
-            병원이 데스크톱/PC 위주라면, 인쇄해서 가져가거나 PDF로 저장해 카톡·이메일로 미리 보내보세요.
+            공유가 지원되지 않는 환경에서는 요약 텍스트가 자동으로 복사돼요.
+            {shareState === "error" ? " 복사 권한이 막혀 있어 직접 선택해 복사해주세요." : ""}
           </p>
         </>
       }>
-      {/* 인쇄 시 이 영역만 남기고 나머지(모달 배경 등)는 화면에서 숨김 */}
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          #pre-visit-print-area, #pre-visit-print-area * { visibility: visible; }
-          #pre-visit-print-area { position: absolute; top: 0; left: 0; width: 100%; padding: 24px; }
-        }
-      `}</style>
-      <div id="pre-visit-print-area" ref={printRef}>
+      <div>
         <pre style={{ background: "#F7F9F6", borderRadius: 12, padding: 14, fontSize: 12.5, lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-all", color: "#1F2E26", fontFamily: "inherit", margin: 0 }}>
           {text}
         </pre>
@@ -2411,7 +2583,7 @@ function NextVisitEditor({ current, onSave, onClose }) {
           </div>
         </>
       }>
-      <label style={S.label}>날짜</label>
+      <label style={S.label}>날짜<RequiredMark /></label>
       <div style={{ marginBottom: 10 }}>
         <KDateSelect value={date} min={todayStr()} onChange={setDate} />
       </div>
@@ -2424,7 +2596,7 @@ function NextVisitEditor({ current, onSave, onClose }) {
           오늘 이미 지난 시간이에요. 미래 시간을 선택해주세요.
         </div>
       )}
-      <label style={S.label}>병원</label>
+      <label style={S.label}>병원<RequiredMark /></label>
       <KInput style={S.input} value={hospital} onChange={(e) => setHospital(e.target.value)} placeholder="예: 하늘동물병원" />
       <label style={S.label}>목적 (선택)</label>
       <KInput style={S.input} value={purpose} onChange={(e) => setPurpose(e.target.value)} placeholder="예: 혈액검사 재검" />
@@ -2491,7 +2663,7 @@ function VisitEditor({ visit, defaultHospital, onSave, onDelete, onClose }) {
           </div>
         </>
       }>
-      <label style={S.label}>진료일</label>
+      <label style={S.label}>진료일<RequiredMark /></label>
       <div style={{ marginBottom: 6 }}>
         <KDateSelect value={date} max={todayStr()} onChange={setDate} />
       </div>
@@ -2500,7 +2672,7 @@ function VisitEditor({ visit, defaultHospital, onSave, onDelete, onClose }) {
           다녀온 진료 기록이라 미래 날짜는 선택할 수 없어요. 앞으로 갈 진료는 "예정 추가"에 등록해주세요.
         </div>
       )}
-      <label style={S.label}>병원</label>
+      <label style={S.label}>병원<RequiredMark /></label>
       <KInput style={S.input} value={hospital} onChange={(e) => setHospital(e.target.value)} placeholder="예: 하늘동물병원" />
       <label style={S.label}>진료 사유</label>
       <KInput style={S.input} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="예: 정기 검진, 구토 증상" />
@@ -2576,7 +2748,7 @@ function SettingsView({ data, update, setData }) {
     const blob = new Blob([JSON.stringify({ version: 4, exportedAt: new Date().toISOString(), data, photos }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `아프지마_백업_${todayStr()}.json`; a.click();
+    a.href = url; a.download = `PetCare+_백업_${todayStr()}.json`; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -2735,7 +2907,7 @@ function SettingsView({ data, update, setData }) {
         </p>
       </div>
 
-      <p style={{ fontSize: 11, color: "#C9CFCA", textAlign: "center", marginTop: 20 }}>아프지마 · 프로토타입 MVP 2.0</p>
+      <p style={{ fontSize: 11, color: "#C9CFCA", textAlign: "center", marginTop: 20 }}>PetCare+ · 프로토타입 MVP 2.0</p>
 
       {section === "pet" && (
         <PetEditor pet={pet} onSave={(p) => { update((d) => ({ ...d, pet: { ...d.pet, ...p } })); setSection(null); }} onClose={() => setSection(null)} />
@@ -2805,7 +2977,7 @@ function PetEditor({ pet, onSave, onClose }) {
           onClick={() => onSave({ name: name.trim(), species, breed: breed.trim(), age: age.trim(), photo, tags: tags.split(",").map((t) => t.trim()).filter(Boolean) })}>저장</button>
       }>
       <PhotoPicker photo={photo} name={name} onChange={setPhoto} />
-      <label style={S.label}>이름</label>
+      <label style={S.label}>이름<RequiredMark /></label>
       <KInput style={S.input} value={name} onChange={(e) => setName(e.target.value)} />
       <div style={{ display: "flex", gap: 8 }}>
         <div style={{ flex: 1 }}>
@@ -2938,7 +3110,7 @@ function RoutineEditor({ routine, onSave, onDelete, onClose }) {
       <QueuePreview queue={queue} onRemove={removeFromQueue} />
       <label style={S.label}>유형</label>
       <TypeSelector type={type} onChange={setType} />
-      <label style={S.label}>이름</label>
+      <label style={S.label}>이름<RequiredMark /></label>
       <KInput style={S.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 신장약, 아침 사료" />
       <label style={S.label}>상세 (용량 등, 선택)</label>
       <KInput style={S.input} value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="예: 1/4정, 30g" />
@@ -2946,7 +3118,7 @@ function RoutineEditor({ routine, onSave, onDelete, onClose }) {
       <div style={{ marginBottom: 14 }}>
         <KTimeSelect value={time} onChange={setTime} />
       </div>
-      <label style={S.label}>반복</label>
+      <label style={S.label}>반복<RequiredMark /></label>
       <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
         {[["daily", "매일"], ["weekdays", "요일 지정"], ["interval", "N일 간격"]].map(([k, l]) => (
           <button key={k} style={{ ...S.chip, ...(repeat === k ? S.chipOn : {}) }} onClick={() => setRepeat(k)}>{l}</button>
@@ -2975,12 +3147,13 @@ function Modal({ title, children, footer, onClose }) {
   const desktop = useIsDesktop();
   return (
     <div style={{ ...S.modalBack, alignItems: desktop ? "center" : "flex-end", padding: desktop ? 24 : 0 }} onClick={onClose}>
+      <style>{`.modal-scroll::-webkit-scrollbar{display:none;}`}</style>
       <div style={{ ...S.modal, display: "flex", flexDirection: "column", borderRadius: desktop ? 18 : "18px 18px 0 0", maxHeight: desktop ? "86vh" : "88vh" }} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexShrink: 0 }}>
           <h3 style={{ margin: 0, fontSize: 17, color: "#1F2E26" }}>{title}</h3>
           <button style={S.iconBtn} onClick={onClose}><X size={18} color="#6B7280" /></button>
         </div>
-        <div style={{ overflowY: "auto", flex: 1, minHeight: 0, WebkitOverflowScrolling: "touch" }}>{children}</div>
+        <div className="modal-scroll" style={{ overflowY: "auto", flex: 1, minHeight: 0, WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>{children}</div>
         {footer && <div style={{ flexShrink: 0, paddingTop: 12, borderTop: "1px solid #F0F3F0", marginTop: 6 }}>{footer}</div>}
       </div>
     </div>
