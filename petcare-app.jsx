@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import logoUrl from "./images/logo.svg";
-import startDogUrl from "./images/start-dog-wide.png";
+import startDogUrl from "./images/start-dog-wide.webp";
 import {
   Sun, ClipboardList, BarChart3, Stethoscope, Settings, PawPrint,
   Pill, Utensils, Droplets, Syringe, Footprints, ClipboardCheck, StickyNote,
   Check, Download, Upload, Pencil, Trash2, Plus, CalendarClock, Building2, X,
   Star, Wind, Scale, ChevronRight, Activity, Camera, Bell, BellOff,
-  SlidersHorizontal, Share2,
+  SlidersHorizontal, Share2, ShieldCheck,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -1248,7 +1248,7 @@ function RequiredMark() {
 
 function StartScreen({ onStart }) {
   return (
-    <div style={{ ...S.app, minHeight: "100dvh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 40%, #F6FBF7 56%, #EAF7EE 100%)" }}>
+    <div style={{ ...S.app, minHeight: "100dvh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #F2F3EB 0%, #F2F3EB 40%, #F6FBF7 56%, #EAF7EE 100%)" }}>
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 70, height: "58vh", background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(234,247,238,.42) 30%, #EAF7EE 100%)", zIndex: 0 }} />
       <img
         src={startDogUrl}
@@ -1257,9 +1257,9 @@ function StartScreen({ onStart }) {
           position: "absolute",
           left: "50%",
           bottom: 100,
-          width: "min(160%, 760px)",
+          width: "min(185%, 880px)",
           height: "auto",
-          maxHeight: "74vh",
+          maxHeight: "82vh",
           objectFit: "contain",
           objectPosition: "center bottom",
           display: "block",
@@ -1276,37 +1276,53 @@ function StartScreen({ onStart }) {
         }
         .start-float-card { animation: startCardFloat 4s ease-in-out infinite; will-change: transform; }
       `}</style>
-      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "42%", zIndex: 2, "--rot": "-2deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "8px 12px", boxShadow: "0 8px 20px rgba(31,46,38,.12)" }}>
-        <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#3E7C59", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Check size={12} color="#FFF" strokeWidth={3} />
+      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "42%", zIndex: 2, "--rot": "0deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Check size={17} color="#2F6F5E" strokeWidth={3} />
         </div>
-        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#1F2E26" }}>아침 투약 완료 <span style={{ color: "#5F6E67", fontWeight: 500 }}>08:00</span></span>
+        <div>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#556158" }}>아침 투약 완료</div>
+          <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>08:00</div>
+        </div>
       </div>
-      <div className="start-float-card" style={{ position: "absolute", right: 10, top: "50%", zIndex: 2, "--rot": "1.5deg", animationDelay: "1.3s", display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "8px 12px", boxShadow: "0 8px 20px rgba(31,46,38,.12)" }}>
-        <CalendarClock size={16} color="#3E7C59" />
-        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#1F2E26" }}>다음 진료 D-8</span>
+      <div className="start-float-card" style={{ position: "absolute", right: 10, top: "50%", zIndex: 2, "--rot": "0deg", animationDelay: "1.3s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <CalendarClock size={17} color="#2F6F5E" />
+        </div>
+        <div>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#556158" }}>다음 진료</div>
+          <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>D-8</div>
+        </div>
       </div>
-      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "53%", zIndex: 2, "--rot": "-1deg", animationDelay: "2.6s", display: "flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "8px 12px", boxShadow: "0 8px 20px rgba(31,46,38,.12)" }}>
-        <BarChart3 size={16} color="#3E7C59" />
-        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#1F2E26" }}>이번 주 케어 92%</span>
+      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "60%", zIndex: 2, "--rot": "0deg", animationDelay: "2.6s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <BarChart3 size={17} color="#2F6F5E" />
+        </div>
+        <div>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#556158" }}>이번 주 케어</div>
+          <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>92%</div>
+        </div>
       </div>
-      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "72px 24px 132px", boxSizing: "border-box" }}>
+      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "48px 24px 132px", boxSizing: "border-box" }}>
         <div style={{ flexShrink: 0, position: "relative", zIndex: 2 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 34 }}>
-            <img src={logoUrl} alt="" style={{ width: 34, height: 34, borderRadius: 8, display: "block" }} />
-            <div style={{ color: "#10231D", fontSize: 19, fontWeight: 900, letterSpacing: 0, lineHeight: 1 }}>
-              PetCare<span style={{ color: "#2F6F5E", fontSize: 15, verticalAlign: "super", marginLeft: 1 }}>+</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 40 }}>
+            <img src={logoUrl} alt="" style={{ width: 30, height: 30, borderRadius: 8, display: "block" }} />
+            <div style={{ color: "#10231D", fontSize: 18, fontWeight: 900, letterSpacing: 0, lineHeight: 1 }}>
+              PetCare<span style={{ color: "#2F6F5E", fontSize: 14, verticalAlign: "super", marginLeft: 1 }}>+</span>
             </div>
           </div>
-          <h1 style={{ margin: 0, color: "#151A18", fontSize: 27, lineHeight: 1.42, fontWeight: 900, letterSpacing: 0 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#E3F0E7", color: "#2F6F5E", fontSize: 11.5, fontWeight: 700, padding: "7px 14px", borderRadius: 20, marginBottom: 22 }}>
+            <ShieldCheck size={13} />우리 아이 건강 파트너
+          </div>
+          <h1 style={{ margin: 0, color: "#151A18", fontSize: 34, lineHeight: 1.3, fontWeight: 900, letterSpacing: -0.5 }}>
             아이의 하루를,<br />놓치지 않게
           </h1>
-          <p style={{ margin: "18px 0 0", color: "#6B7280", fontSize: 14, lineHeight: 1.7, fontWeight: 700, letterSpacing: 0 }}>
+          <p style={{ margin: "14px 0 0", color: "#6B7280", fontSize: 14.5, lineHeight: 1.7, fontWeight: 700, letterSpacing: 0 }}>
             케어부터 진료 기록까지, PetCare+가 함께해요
           </p>
         </div>
       </main>
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))", background: "linear-gradient(180deg, rgba(234,247,238,0) 0%, rgba(234,247,238,.92) 28%, #EAF7EE 100%)" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 20, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))", background: "linear-gradient(180deg, rgba(234,247,238,0) 0%, rgba(234,247,238,.92) 28%, #EAF7EE 100%)" }}>
         <button type="button" style={{ ...S.primaryBtn, height: 52, borderRadius: 10, boxShadow: "0 8px 18px rgba(62,124,89,.25)" }} onClick={onStart}>
           시작하기
         </button>
