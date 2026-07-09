@@ -1248,8 +1248,7 @@ function RequiredMark() {
 
 function StartScreen({ onStart }) {
   return (
-    <div style={{ ...S.app, minHeight: "100dvh", position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #F2F3EB 0%, #F2F3EB 40%, #F6FBF7 56%, #EAF7EE 100%)" }}>
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 70, height: "58vh", background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(234,247,238,.42) 30%, #EAF7EE 100%)", zIndex: 0 }} />
+    <div style={{ ...S.app, minHeight: "100dvh", position: "relative", overflow: "hidden", background: "#F2F3EB" }}>
       <img
         src={startDogUrl}
         alt=""
@@ -1276,7 +1275,7 @@ function StartScreen({ onStart }) {
         }
         .start-float-card { animation: startCardFloat 4s ease-in-out infinite; will-change: transform; }
       `}</style>
-      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "42%", zIndex: 2, "--rot": "0deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+      <div className="start-float-card" style={{ position: "absolute", left: 60, top: "48%", zIndex: 2, "--rot": "0deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
         <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <Check size={17} color="#2F6F5E" strokeWidth={3} />
         </div>
@@ -1285,7 +1284,7 @@ function StartScreen({ onStart }) {
           <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>08:00</div>
         </div>
       </div>
-      <div className="start-float-card" style={{ position: "absolute", right: 10, top: "50%", zIndex: 2, "--rot": "0deg", animationDelay: "1.3s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+      <div className="start-float-card" style={{ position: "absolute", right: 10, top: "54%", zIndex: 2, "--rot": "0deg", animationDelay: "1.3s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
         <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <CalendarClock size={17} color="#2F6F5E" />
         </div>
@@ -1294,7 +1293,7 @@ function StartScreen({ onStart }) {
           <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>D-8</div>
         </div>
       </div>
-      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "60%", zIndex: 2, "--rot": "0deg", animationDelay: "2.6s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "66%", zIndex: 2, "--rot": "0deg", animationDelay: "2.6s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
         <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <BarChart3 size={17} color="#2F6F5E" />
         </div>
@@ -1322,7 +1321,7 @@ function StartScreen({ onStart }) {
           </p>
         </div>
       </main>
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 20, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))", background: "linear-gradient(180deg, rgba(234,247,238,0) 0%, rgba(234,247,238,.92) 28%, #EAF7EE 100%)" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 20, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))" }}>
         <button type="button" style={{ ...S.primaryBtn, height: 52, borderRadius: 10, boxShadow: "0 8px 18px rgba(62,124,89,.25)" }} onClick={onStart}>
           시작하기
         </button>
@@ -1365,20 +1364,12 @@ function Onboarding({ onDone }) {
 
   return (
     <div style={{ ...S.app, justifyContent: "center" }}>
-      <div style={{ padding: 24, maxWidth: 420, margin: "0 auto", width: "100%" }}>
+      <div style={{ padding: 24, maxWidth: 420, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
         <div style={{ textAlign: "center" }}><img src={logoUrl} alt="" style={{ width: 48, height: 48, borderRadius: 12, display: "inline-block" }} /></div>
         <h1 style={{ textAlign: "center", fontSize: 22, color: "#1F2E26", margin: "8px 0 4px" }}>PetCare<span style={{ color: "#2F6F5E" }}>+</span></h1>
         <p style={{ textAlign: "center", color: "#6B7280", fontSize: 13, marginBottom: 24 }}>
           매일의 돌봄을 기록하고, 진료실에서 힘이 되도록
         </p>
-
-        <button style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 20, border: "1.5px dashed #3E7C59", background: "#EAF3EC" }}
-          onClick={() => onDone(makeSampleData())}>
-          <div style={{ fontWeight: 800, fontSize: 14, color: "#2F5E45" }}>샘플 데이터로 둘러보기</div>
-          <div style={{ fontSize: 12, color: "#556158", marginTop: 3 }}>신부전 고양이 '모모'의 2주 기록이 채워진 상태로 시작해요. 설정에서 초기화할 수 있어요.</div>
-        </button>
-
-        <div style={{ fontSize: 12, color: "#9AA5A0", textAlign: "center", marginBottom: 16 }}>— 또는 직접 등록하기 —</div>
 
         <PhotoPicker photo={photo} name={name} onChange={setPhoto} />
         <label style={S.label}>아이 이름 <span style={{ color: "#E0554F" }}>*</span></label>
