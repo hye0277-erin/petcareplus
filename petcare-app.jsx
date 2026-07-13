@@ -1316,7 +1316,7 @@ export function StartScreen({ onStart, startLabel }) {
         </div>
       </main>
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 4, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))" }}>
-        <button type="button" style={{ ...S.primaryBtn, background: "#2F7D64", height: 54, borderRadius: 10, fontSize: 15.5, boxShadow: "0 8px 18px rgba(47,125,100,.35)" }} onClick={onStart}>
+        <button type="button" style={{ ...S.primaryBtn, background: "#2F7D64", height: 54, borderRadius: 10, fontSize: 15.5 }} onClick={onStart}>
           {startLabel || "시작하기"}
         </button>
       </div>
