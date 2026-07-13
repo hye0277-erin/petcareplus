@@ -1246,7 +1246,7 @@ function RequiredMark() {
 
 export function StartScreen({ onStart, startLabel }) {
   return (
-    <div style={{ ...S.app, minHeight: "100dvh", position: "relative", overflow: "hidden", background: "#F2F3EB" }}>
+    <div style={{ ...S.app, height: "100dvh", minHeight: "100dvh", position: "relative", overflow: "hidden", background: "#F2F3EB" }}>
       <img
         src={startDogUrl}
         alt=""
