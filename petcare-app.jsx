@@ -28,11 +28,11 @@ if (typeof window !== "undefined") {
    ───────────────────────────────────────────── */
 const STORE_KEY = "petcare-v2";
 
+/* 주의: "저장된 데이터 없음"(null 반환)과 "읽기 실패"(예외)를 구분해야 함.
+   실패를 null로 처리하면 기본값으로 시작한 뒤 기존 클라우드 데이터를 덮어쓸 수 있다. */
 async function loadRaw() {
-  try {
-    const r = await window.storage.get(STORE_KEY);
-    if (r && r.value) return JSON.parse(r.value);
-  } catch (e) { /* 최초 실행 */ }
+  const r = await window.storage.get(STORE_KEY);
+  if (r && r.value) return JSON.parse(r.value);
   return null;
 }
 async function saveData(data) {
@@ -903,10 +903,23 @@ export default function App({ onLogout, userEmail } = {}) {
   const [quickOpen, setQuickOpen] = useState(false);
   const saveTimer = useRef(null);
   const loaded = useRef(false);
+  const [loadError, setLoadError] = useState(false);
+  const [loadRetry, setLoadRetry] = useState(0);
+  const dataRef = useRef(null);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     (async () => {
-      const raw = await loadRaw();
+      let raw;
+      try {
+        raw = await loadRaw();
+      } catch (e) {
+        // 읽기 실패 시 기본값으로 시작하면 이후 저장이 클라우드 데이터를 덮어쓰므로 차단
+        console.error("데이터 불러오기 실패", e);
+        setLoadError(true);
+        return;
+      }
+      setLoadError(false);
       const d = migrate(raw) || DEFAULT_DATA;
       // 예전 버전: 사진이 본문에 통째로 저장돼 용량 초과를 일으킴 → 분리 키로 이전
       let moved = false;
@@ -928,10 +941,12 @@ export default function App({ onLogout, userEmail } = {}) {
       setData(d);
       loaded.current = true;
     })();
-  }, []);
+  }, [loadRetry]);
 
   useEffect(() => {
+    dataRef.current = data;
     if (!loaded.current || data === null) return;
+    dirtyRef.current = true;
     setSaveState("saving");
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
@@ -941,11 +956,41 @@ export default function App({ onLogout, userEmail } = {}) {
         await new Promise((r) => setTimeout(r, 1500));
         ok = await saveData(data);
       }
+      if (ok && dataRef.current === data) dirtyRef.current = false;
       setSaveState(ok ? "saved" : "error");
       if (ok) setTimeout(() => setSaveState("idle"), 1500);
     }, 600);
     return () => clearTimeout(saveTimer.current);
   }, [data]);
+
+  /* 탭 전환·홈 이동·닫기 시 디바운스 대기 중인 변경을 즉시 저장 (모바일 PWA는 pagehide가 마지막 기회) */
+  useEffect(() => {
+    const flush = () => {
+      if (!dirtyRef.current || !dataRef.current) return;
+      clearTimeout(saveTimer.current);
+      dirtyRef.current = false;
+      saveData(dataRef.current);
+    };
+    const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", flush);
+    };
+  }, []);
+
+  /* 로그아웃 전에 대기 중인 변경을 저장하고 나감 */
+  const handleLogout = onLogout
+    ? async () => {
+        if (dirtyRef.current && dataRef.current) {
+          clearTimeout(saveTimer.current);
+          dirtyRef.current = false;
+          await saveData(dataRef.current);
+        }
+        onLogout();
+      }
+    : undefined;
 
   const update = useCallback((fn) => setData((prev) => fn(structuredClone(prev))), []);
 
@@ -1000,6 +1045,19 @@ export default function App({ onLogout, userEmail } = {}) {
     });
   }, [update]);
 
+  if (loadError)
+    return (
+      <div style={S.loading}>
+        <PawPrint size={36} color="#B65C68" />
+        <div style={{ marginTop: 10, color: "#6B7280", fontSize: 13, textAlign: "center", lineHeight: 1.6 }}>
+          기록을 불러오지 못했어요.<br />네트워크 연결을 확인해주세요.
+        </div>
+        <button style={{ ...S.chip, marginTop: 14, padding: "9px 20px" }} onClick={() => setLoadRetry((n) => n + 1)}>
+          다시 시도
+        </button>
+      </div>
+    );
+
   if (data === null)
     return (
       <div style={S.loading}>
@@ -1027,7 +1085,7 @@ export default function App({ onLogout, userEmail } = {}) {
       {tab === "log" && <LogView data={data} update={update} />}
       {tab === "hospital" && <HospitalView data={data} update={update} />}
       {tab === "report" && <ReportView data={data} />}
-      {tab === "settings" && <SettingsView data={data} update={update} setData={setData} onLogout={onLogout} userEmail={userEmail} />}
+      {tab === "settings" && <SettingsView data={data} update={update} setData={setData} onLogout={handleLogout} userEmail={userEmail} />}
     </>
   );
 
