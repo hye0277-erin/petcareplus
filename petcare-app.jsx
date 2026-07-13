@@ -1307,7 +1307,7 @@ export function StartScreen({ onStart, startLabel }) {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.4)", border: "1px solid #FFF", color: "#2F6F5E", fontSize: 10.5, fontWeight: 600, padding: "7px 13px", borderRadius: 20, marginBottom: 32 }}>
             <ShieldCheck size={13} />우리 아이의 건강 파트너
           </div>
-          <h1 style={{ margin: 0, color: "#151A18", fontSize: 34, lineHeight: 1.2, fontWeight: 700, letterSpacing: 0 }}>
+          <h1 style={{ margin: 0, color: "#151A18", fontSize: 36, lineHeight: 1.2, fontWeight: 700, letterSpacing: 0 }}>
             아이의 하루를<br />놓치지 않게
           </h1>
           <p style={{ margin: "22px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
