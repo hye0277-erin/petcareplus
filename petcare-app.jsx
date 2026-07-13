@@ -1297,7 +1297,7 @@ export function StartScreen({ onStart, startLabel }) {
         </div>
       </div>
       <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "40px 24px 132px", boxSizing: "border-box" }}>
-        <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center" }}>
+        <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center", top: "1%" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 40 }}>
             <img src={logoUrl} alt="" style={{ width: 24, height: 24, borderRadius: 7, display: "block" }} />
             <div style={{ color: "#10231D", fontSize: 15, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
