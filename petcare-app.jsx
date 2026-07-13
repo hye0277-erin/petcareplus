@@ -882,13 +882,12 @@ function makeSampleData() {
 }
 
 /* ───────────── 메인 앱 ───────────── */
-export default function App() {
+export default function App({ onLogout, userEmail } = {}) {
   const desktop = useIsDesktop();
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("today");
   const [saveState, setSaveState] = useState("idle");
   const [quickOpen, setQuickOpen] = useState(false);
-  const [startReady, setStartReady] = useState(false);
   const saveTimer = useRef(null);
   const loaded = useRef(false);
 
@@ -997,7 +996,6 @@ export default function App() {
     );
 
   if (!data.pet) {
-    if (!startReady) return <StartScreen onStart={() => setStartReady(true)} />;
     return <Onboarding onDone={(newData) => setData(newData)} />;
   }
 
@@ -1016,7 +1014,7 @@ export default function App() {
       {tab === "log" && <LogView data={data} update={update} />}
       {tab === "hospital" && <HospitalView data={data} update={update} />}
       {tab === "report" && <ReportView data={data} />}
-      {tab === "settings" && <SettingsView data={data} update={update} setData={setData} />}
+      {tab === "settings" && <SettingsView data={data} update={update} setData={setData} onLogout={onLogout} userEmail={userEmail} />}
     </>
   );
 
@@ -1246,7 +1244,7 @@ function RequiredMark() {
   return <span style={{ color: "#E0554F", marginLeft: 4 }}>*</span>;
 }
 
-function StartScreen({ onStart }) {
+export function StartScreen({ onStart, startLabel }) {
   return (
     <div style={{ ...S.app, minHeight: "100dvh", position: "relative", overflow: "hidden", background: "#F2F3EB" }}>
       <img
@@ -1258,7 +1256,7 @@ function StartScreen({ onStart }) {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          objectPosition: "center bottom",
+          objectPosition: "35% bottom",
           display: "block",
           zIndex: 1,
         }}
@@ -1268,7 +1266,7 @@ function StartScreen({ onStart }) {
           0%, 100% { transform: translateY(0) rotate(var(--rot)); }
           50% { transform: translateY(-8px) rotate(var(--rot)); }
         }
-        .start-float-card { animation: startCardFloat 4s ease-in-out infinite; will-change: transform; }
+        .start-float-card { display: none !important; animation: startCardFloat 4s ease-in-out infinite; will-change: transform; }
       `}</style>
       <div className="start-float-card" style={{ position: "absolute", left: 60, top: "44%", zIndex: 2, "--rot": "0deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "9px 12px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
         <div style={{ width: 28, height: 28, borderRadius: 8, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -1297,28 +1295,28 @@ function StartScreen({ onStart }) {
           <div style={{ fontSize: 13, fontWeight: 500, color: "#151A18" }}>92%</div>
         </div>
       </div>
-      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "76px 24px 132px", boxSizing: "border-box" }}>
+      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "40px 24px 132px", boxSizing: "border-box" }}>
         <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 40, position: "relative", top: -32 }}>
-            <img src={logoUrl} alt="" style={{ width: 22, height: 22, borderRadius: 6, display: "block" }} />
-            <div style={{ color: "#10231D", fontSize: 20, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
-              PetCare<span style={{ color: "#2F6F5E", fontSize: 15, verticalAlign: "super", marginLeft: 1 }}>+</span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 84 }}>
+            <img src={logoUrl} alt="" style={{ width: 18, height: 18, borderRadius: 5, display: "block" }} />
+            <div style={{ color: "#10231D", fontSize: 15, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
+              PetCare<span style={{ color: "#2F6F5E", fontSize: 11, verticalAlign: "super", marginLeft: 1 }}>+</span>
             </div>
           </div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.7)", color: "#2F6F5E", fontSize: 11.5, fontWeight: 600, padding: "7px 14px", borderRadius: 20, marginBottom: 32 }}>
-            <ShieldCheck size={13} />우리 아이 건강 파트너
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.4)", border: "1px solid #FFF", color: "#2F6F5E", fontSize: 10.5, fontWeight: 600, padding: "7px 13px", borderRadius: 20, marginBottom: 32 }}>
+            <ShieldCheck size={13} />우리 아이의 건강 파트너
           </div>
-          <h1 style={{ margin: 0, color: "#151A18", fontSize: 36, lineHeight: 1.15, fontWeight: 700, letterSpacing: -0.5 }}>
-            아이의 하루를,<br />놓치지 않게
+          <h1 style={{ margin: 0, color: "#151A18", fontSize: 36, lineHeight: 1.18, fontWeight: 700, letterSpacing: 0 }}>
+            아이의 하루를<br />놓치지 않게
           </h1>
-          <p style={{ margin: "22px 0 0", color: "#3D3D3D", fontSize: 13.5, lineHeight: 1.6, fontWeight: 600, letterSpacing: 0, whiteSpace: "nowrap" }}>
-            매일의 케어부터 진료 기록까지, PetCare+가 함께할게요
+          <p style={{ margin: "22px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
+            매일 케어부터 진료 기록까지,<br /><span style={{ color: "#FF6600" }}>PetCare+</span>가 함께할게요.
           </p>
         </div>
       </main>
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 20, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))" }}>
-        <button type="button" style={{ ...S.primaryBtn, height: 52, borderRadius: 10, boxShadow: "0 8px 18px rgba(62,124,89,.25)" }} onClick={onStart}>
-          시작하기
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 4, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))" }}>
+        <button type="button" style={{ ...S.primaryBtn, background: "#2F7D64", height: 54, borderRadius: 10, fontSize: 15.5, boxShadow: "0 8px 18px rgba(47,125,100,.35)" }} onClick={onStart}>
+          {startLabel || "시작하기"}
         </button>
       </div>
     </div>
@@ -2721,7 +2719,7 @@ function VisitEditor({ visit, defaultHospital, onSave, onDelete, onClose }) {
 }
 
 /* ───────────── 설정 탭 ───────────── */
-function SettingsView({ data, update, setData }) {
+function SettingsView({ data, update, setData, onLogout, userEmail }) {
   const [section, setSection] = useState(null); // null | 'pet' | 'routines'
   const [editing, setEditing] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -2896,6 +2894,14 @@ function SettingsView({ data, update, setData }) {
           앱을 닫아도 울리는 푸시 알림은 실제 사이트로 배포한 뒤 브라우저 알림 권한을 허용하면 동작해요. 이 미리보기에서는 화면 안 알림만 지원돼요. 루틴별로 알림을 끄려면 루틴 수정에서 설정하세요.
         </p>
       </div>
+
+      {onLogout && (
+        <div style={{ ...S.card, marginTop: 10 }}>
+          <div style={S.cardTitle}>계정</div>
+          {userEmail && <p style={{ fontSize: 12.5, color: "#5B6660", margin: "0 0 8px" }}>{userEmail}</p>}
+          <Row Icon={X} title="로그아웃" desc="다시 로그인하면 기록을 이어서 볼 수 있어요" danger onClick={onLogout} />
+        </div>
+      )}
 
       <div style={{ ...S.card, marginTop: 10 }}>
         <div style={S.cardTitle}>데이터</div>
