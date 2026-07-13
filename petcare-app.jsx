@@ -1568,16 +1568,23 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
   const [detailFor, setDetailFor] = useState(null);
   const [editingRoutine, setEditingRoutine] = useState(null);
   const [currentTime, setCurrentTime] = useState(nowTime());
+  // 남은 할일(0) → 지난 할일/건너뜀(1) → 체크 완료(2) 순으로 구분
+  const groupOf = (r) => {
+    if (detailFor === r.id) return 0;
+    const status = logs[r.id]?.status;
+    if (status === "done") return 2;
+    if (status === "skipped") return 1;
+    return 0;
+  };
   const sortedDue = [...due].sort((a, b) => {
-    const group = (r) => {
-      const status = logs[r.id]?.status;
-      if (detailFor === r.id) return 0;
-      if (status === "done" || status === "skipped") return 2;
-      return minutesDiff(r.time, currentTime) > 30 ? 2 : 0;
-    };
-    const groupDiff = group(a) - group(b);
+    const groupDiff = groupOf(a) - groupOf(b);
     return groupDiff || a.time.localeCompare(b.time);
   });
+  const GROUP_LABEL = {
+    0: { text: "남은 할일", color: "#2F5E45" },
+    1: { text: "지난 할일 · 건너뜀", color: "#B0682E" },
+    2: { text: "체크 완료", color: "#6B7280" },
+  };
   const doneCount = due.filter((r) => logs[r.id]?.status === "done").length;
   const upcoming = (data.nextVisits || []).filter((v) => daysBetween(date, v.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
   const nv = upcoming[0];
@@ -1684,47 +1691,70 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
           const done = log?.status === "done";
           const skipped = log?.status === "skipped";
           const isLast = idx === sortedDue.length - 1;
+          const group = groupOf(r);
+          const showHeader = idx === 0 || group !== groupOf(sortedDue[idx - 1]);
+          const label = GROUP_LABEL[group];
           return (
-            <div key={r.id} style={{ position: "relative", paddingLeft: 26, paddingBottom: isLast ? 0 : 14 }}>
-              {!isLast && <div style={{ position: "absolute", left: 8, top: 18, bottom: -2, width: 1, background: "#DDE4DE" }} />}
-              <div style={{ position: "absolute", left: 3, top: 16, width: 11, height: 11, borderRadius: "50%", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", zIndex: 1 }} />
-              <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#FAFAF9" : "#FFF" }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "#9AA5A0", marginBottom: 6 }}>{r.time}</div>
-                <div onClick={() => toggle(r)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: skipped ? 0.55 : 1 }}>
-                  <TypeIcon type={r.type} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 15, color: "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
-                    <div style={{ fontSize: 12, color: "#6B7280" }}>
-                      {r.detail || TYPE_META[r.type].label}
-                      {done && log.time && <span style={{ color: "#3E7C59" }}> · {log.time} 완료</span>}
+            <div key={r.id}>
+              {showHeader && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, margin: idx === 0 ? "0 0 8px" : "16px 0 8px" }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: label.color }}>{label.text}</span>
+                  <span style={{ fontSize: 11, color: "#9AA5A0" }}>
+                    {sortedDue.filter((x) => groupOf(x) === group).length}건
+                  </span>
+                </div>
+              )}
+              <div style={{ position: "relative", paddingLeft: 26, paddingBottom: isLast ? 0 : 14 }}>
+                {!isLast && <div style={{ position: "absolute", left: 8, top: 18, bottom: -2, width: 1, background: "#DDE4DE" }} />}
+                <div style={{ position: "absolute", left: 3, top: 16, width: 11, height: 11, borderRadius: "50%",
+                  background: done ? "#3E7C59" : skipped ? "#E0A458" : "#FFF",
+                  border: done || skipped ? "none" : "2px solid #C9CFCA", zIndex: 1 }} />
+                <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#FDF6ED" : "#FFF", borderColor: skipped ? "#F0DCB8" : S.card.borderColor }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "#9AA5A0" }}>{r.time}</span>
+                    {skipped && (
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#B0682E", background: "#FBEAD3", padding: "1px 7px", borderRadius: 8 }}>건너뜀</span>
+                    )}
+                    {done && (
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#2F5E45", background: "#E3F0E7", padding: "1px 7px", borderRadius: 8 }}>완료</span>
+                    )}
+                  </div>
+                  <div onClick={() => toggle(r)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: skipped ? 0.7 : 1 }}>
+                    <TypeIcon type={r.type} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: 15, color: skipped ? "#8A7355" : "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
+                      <div style={{ fontSize: 12, color: "#6B7280" }}>
+                        {r.detail || TYPE_META[r.type].label}
+                        {done && log.time && <span style={{ color: "#3E7C59" }}> · {log.time} 완료</span>}
+                      </div>
+                      {log?.extra && <div style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{log.extra}</div>}
                     </div>
-                    {log?.extra && <div style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{log.extra}</div>}
-                  </div>
-                  <button type="button" style={S.iconBtn} onClick={(e) => { e.stopPropagation(); setEditingRoutine(r); }}>
-                    <Pencil size={14} color="#6B7280" />
-                  </button>
-                  <div style={{ width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", flexShrink: 0 }}>
-                    {done && <Check size={15} color="#FFF" strokeWidth={3} />}
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 42 }}>
-                  {!skipped && !done && (
-                    <button style={S.miniBtn} onClick={() => setDetailFor(detailFor === r.id ? null : r.id)}>
-                      {log?.extra ? "상세 수정" : "+ 상세 남기기"}
+                    <button type="button" style={S.iconBtn} onClick={(e) => { e.stopPropagation(); setEditingRoutine(r); }}>
+                      <Pencil size={14} color="#6B7280" />
                     </button>
-                  )}
-                  {skipped && <button style={S.miniBtn} onClick={() => setLog(r.id, null)}>되돌리기</button>}
-                  {(done || skipped) && (
-                    <button style={S.miniBtn} onClick={() => setDetailFor(detailFor === r.id ? null : r.id)}>
-                      {log?.extra ? "상세 수정" : "+ 상세 남기기"}
-                    </button>
+                    <div style={{ width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", flexShrink: 0 }}>
+                      {done && <Check size={15} color="#FFF" strokeWidth={3} />}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 42 }}>
+                    {!skipped && !done && (
+                      <button style={S.miniBtn} onClick={() => setDetailFor(detailFor === r.id ? null : r.id)}>
+                        {log?.extra ? "상세 수정" : "+ 상세 남기기"}
+                      </button>
+                    )}
+                    {skipped && <button style={S.miniBtn} onClick={() => setLog(r.id, null)}>되돌리기</button>}
+                    {(done || skipped) && (
+                      <button style={S.miniBtn} onClick={() => setDetailFor(detailFor === r.id ? null : r.id)}>
+                        {log?.extra ? "상세 수정" : "+ 상세 남기기"}
+                      </button>
+                    )}
+                  </div>
+                  {detailFor === r.id && (
+                    <div style={{ marginLeft: 42 }}>
+                      <DetailInput type={r.type} current={log?.extra || ""} onSave={(v) => { setLog(r.id, { extra: v }); setDetailFor(null); }} />
+                    </div>
                   )}
                 </div>
-                {detailFor === r.id && (
-                  <div style={{ marginLeft: 42 }}>
-                    <DetailInput type={r.type} current={log?.extra || ""} onSave={(v) => { setLog(r.id, { extra: v }); setDetailFor(null); }} />
-                  </div>
-                )}
               </div>
             </div>
           );
