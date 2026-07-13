@@ -1632,24 +1632,24 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
   return (
     <div style={{ padding: "20px 16px 16px" }}>
       {/* 프로필 카드 */}
-      <button onClick={goSettings} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 12, background: "#2F5E45", border: "none", color: "#FFF" }}>
-        <Avatar pet={pet} light />
+      <button onClick={goSettings} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+        <Avatar pet={pet} size={44} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 16 }}>{pet.name}</div>
-          <div style={{ fontSize: 12, opacity: 0.85 }}>{[pet.age, pet.breed || pet.species].filter(Boolean).join(" · ")}</div>
+          <div style={{ fontWeight: 700, fontSize: 15, color: "#1F2E26" }}>{pet.name}</div>
+          <div style={{ fontSize: 12, color: "#6B7280", marginTop: 1 }}>{[pet.age, pet.breed || pet.species].filter(Boolean).join(" · ")}</div>
           {pet.tags?.length > 0 && (
-            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6 }}>
+            <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 5 }}>
               {pet.tags.map((t) => (
-                <span key={t} style={{ fontSize: 10.5, fontWeight: 600, background: "rgba(255,255,255,.18)", padding: "3px 8px", borderRadius: 10 }}>{t}</span>
+                <span key={t} style={{ fontSize: 10.5, fontWeight: 600, background: "#EAF3EC", color: "#2F5E45", padding: "3px 8px", borderRadius: 10 }}>{t}</span>
               ))}
             </div>
           )}
         </div>
-        <div style={{ textAlign: "center", flexShrink: 0 }}>
-          <div style={{ fontSize: 11, opacity: 0.85 }}>오늘 케어</div>
-          <div style={{ fontSize: 18, fontWeight: 700 }}>{doneCount}<span style={{ fontSize: 12, opacity: 0.7 }}> / {due.length}</span></div>
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <div style={{ fontSize: 10.5, color: "#9AA5A0" }}>오늘 케어</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#2F5E45" }}>{doneCount}<span style={{ fontSize: 12, color: "#9AA5A0", fontWeight: 500 }}> / {due.length}</span></div>
         </div>
-        <ChevronRight size={16} style={{ opacity: 0.6, flexShrink: 0 }} />
+        <ChevronRight size={16} color="#C9CFCA" style={{ flexShrink: 0 }} />
       </button>
 
       {/* 이상 신호 배너 */}
@@ -1719,9 +1719,6 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
                     {skipped && (
                       <span style={{ fontSize: 10, fontWeight: 700, color: "#6B7268", background: "#E7E9E5", padding: "1px 7px", borderRadius: 8 }}>건너뜀</span>
                     )}
-                    {done && (
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#2F5E45", background: "#E3F0E7", padding: "1px 7px", borderRadius: 8 }}>완료</span>
-                    )}
                   </div>
                   <div onClick={() => toggle(r)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: skipped ? 0.7 : 1 }}>
                     <TypeIcon type={r.type} />
@@ -1736,8 +1733,8 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
                     <button type="button" style={S.iconBtn} onClick={(e) => { e.stopPropagation(); setEditingRoutine(r); }}>
                       <Pencil size={14} color="#6B7280" />
                     </button>
-                    <div style={{ width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", flexShrink: 0 }}>
-                      {done && <Check size={15} color="#FFF" strokeWidth={3} />}
+                    <div style={{ width: 24, height: 24, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", flexShrink: 0 }}>
+                      {done && <Check size={14} color="#FFF" strokeWidth={3} />}
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 42 }}>
