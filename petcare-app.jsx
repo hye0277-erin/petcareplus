@@ -1238,7 +1238,11 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
           )}
           <label style={S.label}>일시 (지난 날짜도 기록할 수 있어요)</label>
           <div style={{ marginBottom: 10 }}>
-            <KDateSelect value={date} max={todayStr()} onChange={setDate} />
+            {cat === "symptom" ? (
+              <KCalendar value={date} max={todayStr()} onChange={setDate} />
+            ) : (
+              <KDateSelect value={date} max={todayStr()} onChange={setDate} />
+            )}
           </div>
           <div style={{ marginBottom: 14 }}>
             <KTimeSelect value={time} onChange={setTime} />
@@ -1323,7 +1327,7 @@ export function StartScreen({ onStart, startLabel }) {
           <h1 style={{ margin: 0, color: "#151A18", fontSize: 36, lineHeight: 1.2, fontWeight: 700, letterSpacing: 0 }}>
             아이의 하루를<br />놓치지 않게
           </h1>
-          <p style={{ margin: "22px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
+          <p style={{ margin: "10px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
             매일 케어부터 진료 기록까지,<br /><span style={{ color: "#FF6600" }}>PetCare+</span>가 함께할게요.
           </p>
         </div>
@@ -2207,17 +2211,20 @@ function ReportView({ data }) {
       {Object.keys(st.symByType).length > 0 && (
         <div style={{ ...S.card, marginTop: 12 }}>
           <div style={S.cardTitle}>증상 기록 요약</div>
-          <div style={{ width: "100%", height: Math.max(60, Object.keys(st.symByType).length * 34) }}>
-            <ResponsiveContainer>
-              <BarChart data={Object.entries(st.symByType).sort((a, b) => b[1] - a[1]).map(([t, n]) => ({ 유형: t, 횟수: n }))}
-                layout="vertical" margin={{ left: 6, right: 16 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" horizontal={false} />
-                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
-                <YAxis type="category" dataKey="유형" width={56} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="횟수" fill="#B65C68" radius={[0, 4, 4, 0]} barSize={16} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+            {(() => {
+              const entries = Object.entries(st.symByType).sort((a, b) => b[1] - a[1]);
+              const max = Math.max(...entries.map(([, n]) => n));
+              return entries.map(([t, n]) => (
+                <div key={t} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 64, flexShrink: 0, fontSize: 12.5, fontWeight: 600, color: "#1F2E26" }}>{t}</div>
+                  <div style={{ flex: 1, height: 16, borderRadius: 8, background: "#F6E8EA", overflow: "hidden" }}>
+                    <div style={{ width: `${(n / max) * 100}%`, height: "100%", borderRadius: 8, background: "#B65C68" }} />
+                  </div>
+                  <div style={{ width: 28, flexShrink: 0, textAlign: "right", fontSize: 12.5, fontWeight: 700, color: "#B65C68" }}>{n}회</div>
+                </div>
+              ));
+            })()}
           </div>
           <div style={{ marginTop: 10 }}>
             {st.sym.slice(0, 10).map((s) => (
@@ -3139,7 +3146,7 @@ function RoutineEditor({ routine, onSave, onDelete, onClose }) {
   const [queue, setQueue] = useState([]); // 추가 모드에서 "계속 추가"로 쌓인 루틴들 (아직 미저장)
 
   const draftValid = name.trim() && (repeat !== "weekdays" || weekdays.length > 0);
-  const buildDraft = () => ({ type, name: name.trim(), detail: detail.trim(), time, repeat, weekdays, intervalDays, alarm });
+  const buildDraft = () => ({ type, name: name.trim(), detail: detail.trim(), time, repeat, weekdays, intervalDays: Math.max(2, parseInt(intervalDays) || 2), alarm });
   const resetFields = () => {
     setType("med"); setName(""); setDetail(""); setTime("08:00");
     setRepeat("daily"); setWeekdays([]); setIntervalDays(2); setAlarm(true);
@@ -3206,7 +3213,9 @@ function RoutineEditor({ routine, onSave, onDelete, onClose }) {
       )}
       {repeat === "interval" && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          <input style={{ ...S.input, marginBottom: 0, width: 70 }} type="number" min="2" value={intervalDays} onChange={(e) => setIntervalDays(parseInt(e.target.value) || 2)} />
+          <input style={{ ...S.input, marginBottom: 0, width: 70 }} type="number" min="2" value={intervalDays}
+            onChange={(e) => setIntervalDays(e.target.value === "" ? "" : parseInt(e.target.value) || "")}
+            onBlur={(e) => setIntervalDays(Math.max(2, parseInt(e.target.value) || 2))} />
           <span style={{ fontSize: 13, color: "#6B7280" }}>일마다 (오늘부터)</span>
         </div>
       )}
