@@ -23,7 +23,7 @@ export default function AuthGate() {
       await signInWithPopup(auth, googleProvider);
     } catch (e) {
       console.error(e);
-      setError("로그인에 실패했어요. 잠시 후 다시 시도해주세요.");
+      setError(`로그인에 실패했어요 (${e.code || e.message}). 잠시 후 다시 시도해주세요.`);
     } finally {
       setSigningIn(false);
     }
