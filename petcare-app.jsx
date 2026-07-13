@@ -1632,24 +1632,30 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
   return (
     <div style={{ padding: "20px 16px 16px" }}>
       {/* 프로필 카드 */}
-      <button onClick={goSettings} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-        <Avatar pet={pet} size={44} />
+      <button onClick={goSettings} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 12, background: "linear-gradient(135deg, #3E7C59 0%, #24422F 100%)", border: "none", color: "#FFF" }}>
+        {pet.photo ? (
+          <img src={pet.photo} alt={pet.name} style={{ width: 44, height: 44, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,.16)", color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, flexShrink: 0 }}>
+            {pet.name[0]}
+          </div>
+        )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 15, color: "#1F2E26" }}>{pet.name}</div>
-          <div style={{ fontSize: 12, color: "#6B7280", marginTop: 1 }}>{[pet.age, pet.breed || pet.species].filter(Boolean).join(" · ")}</div>
+          <div style={{ fontWeight: 700, fontSize: 15, color: "#FFF" }}>{pet.name}</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,.75)", marginTop: 1 }}>{[pet.age, pet.breed || pet.species].filter(Boolean).join(" · ")}</div>
           {pet.tags?.length > 0 && (
             <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 5 }}>
               {pet.tags.map((t) => (
-                <span key={t} style={{ fontSize: 10.5, fontWeight: 600, background: "#EAF3EC", color: "#2F5E45", padding: "3px 8px", borderRadius: 10 }}>{t}</span>
+                <span key={t} style={{ fontSize: 10.5, fontWeight: 600, background: "rgba(255,255,255,.18)", color: "#FFF", padding: "3px 8px", borderRadius: 10 }}>{t}</span>
               ))}
             </div>
           )}
         </div>
         <div style={{ textAlign: "right", flexShrink: 0 }}>
-          <div style={{ fontSize: 10.5, color: "#9AA5A0" }}>오늘 케어</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#2F5E45" }}>{doneCount}<span style={{ fontSize: 12, color: "#9AA5A0", fontWeight: 500 }}> / {due.length}</span></div>
+          <div style={{ fontSize: 10.5, color: "rgba(255,255,255,.75)" }}>오늘 케어</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#FFF" }}>{doneCount}<span style={{ fontSize: 12, color: "rgba(255,255,255,.7)", fontWeight: 500 }}> / {due.length}</span></div>
         </div>
-        <ChevronRight size={16} color="#C9CFCA" style={{ flexShrink: 0 }} />
+        <ChevronRight size={16} color="rgba(255,255,255,.7)" style={{ flexShrink: 0 }} />
       </button>
 
       {/* 이상 신호 배너 */}
