@@ -2917,14 +2917,6 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
         </p>
       </div>
 
-      {onLogout && (
-        <div style={{ ...S.card, marginTop: 10 }}>
-          <div style={S.cardTitle}>계정</div>
-          {userEmail && <p style={{ fontSize: 12.5, color: "#5B6660", margin: "0 0 8px" }}>{userEmail}</p>}
-          <Row Icon={X} title="로그아웃" desc="다시 로그인하면 기록을 이어서 볼 수 있어요" danger onClick={onLogout} />
-        </div>
-      )}
-
       <div style={{ ...S.card, marginTop: 10 }}>
         <div style={S.cardTitle}>데이터</div>
         <Row Icon={Download} title="데이터 백업" desc="전체 기록을 JSON 파일로 내려받기" onClick={exportBackup} />
@@ -2935,6 +2927,14 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
           기록은 이 기기에 자동 저장돼요. 기기 변경이나 만일에 대비해 백업 파일을 정기적으로 보관하세요.
         </p>
       </div>
+
+      {onLogout && (
+        <div style={{ ...S.card, marginTop: 10 }}>
+          <div style={S.cardTitle}>계정</div>
+          {userEmail && <p style={{ fontSize: 12.5, color: "#5B6660", margin: "0 0 8px" }}>{userEmail}</p>}
+          <Row Icon={X} title="로그아웃" desc="다시 로그인하면 기록을 이어서 볼 수 있어요" danger onClick={onLogout} />
+        </div>
+      )}
 
       <p style={{ fontSize: 11, color: "#C9CFCA", textAlign: "center", marginTop: 20 }}>PetCare+ · 프로토타입 MVP 2.0</p>
 

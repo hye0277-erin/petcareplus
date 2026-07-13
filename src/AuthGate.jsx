@@ -58,7 +58,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     background: "#F4F6F2",
-    fontFamily: "'A2z', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
+    fontFamily: "'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
   },
   errorToast: {
     position: "fixed",
