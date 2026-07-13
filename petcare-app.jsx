@@ -2377,7 +2377,7 @@ function ReportView({ data }) {
 
       <div style={desktop ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, alignItems: "start" } : undefined}>
       {appetiteData.length > 0 && (
-        <ChartCard title="식욕·활력 추이 (0~5)">
+        <ChartCard title="식욕·활력 추이 (0~5)" pointCount={appetiteData.length}>
           <LineChart data={appetiteData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis domain={[0, 5]} tick={{ fontSize: 10 }} width={24} /><Tooltip />
@@ -2387,7 +2387,7 @@ function ReportView({ data }) {
         </ChartCard>
       )}
       {weightData.length > 0 && (
-        <ChartCard title="체중 추이 (kg)">
+        <ChartCard title="체중 추이 (kg)" pointCount={weightData.length}>
           <LineChart data={weightData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis domain={["auto", "auto"]} tick={{ fontSize: 10 }} width={34} /><Tooltip />
@@ -2396,7 +2396,7 @@ function ReportView({ data }) {
         </ChartCard>
       )}
       {waterData.length > 0 && (
-        <ChartCard title="음수량 추이 (ml/일)">
+        <ChartCard title="음수량 추이 (ml/일)" pointCount={waterData.length}>
           <LineChart data={waterData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis tick={{ fontSize: 10 }} width={34} /><Tooltip />
@@ -2405,7 +2405,7 @@ function ReportView({ data }) {
         </ChartCard>
       )}
       {breathData.length > 0 && (
-        <ChartCard title="호흡수 추이 (회/분)">
+        <ChartCard title="호흡수 추이 (회/분)" pointCount={breathData.length}>
           <LineChart data={breathData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis domain={["auto", "auto"]} tick={{ fontSize: 10 }} width={30} /><Tooltip />
@@ -2414,7 +2414,7 @@ function ReportView({ data }) {
         </ChartCard>
       )}
       {complianceDailyData.length > 0 && (
-        <ChartCard title="일별 케어 수행률 (%)">
+        <ChartCard title="일별 케어 수행률 (%)" pointCount={complianceDailyData.length}>
           <BarChart data={complianceDailyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis domain={[0, 100]} tick={{ fontSize: 10 }} width={30} /><Tooltip />
@@ -2425,7 +2425,7 @@ function ReportView({ data }) {
         </ChartCard>
       )}
       {mealData.length > 0 && (
-        <ChartCard title="식사량 추이 (0=거부 ~ 3=전부 먹음)">
+        <ChartCard title="식사량 추이 (0=거부 ~ 3=전부 먹음)" pointCount={mealData.length}>
           <BarChart data={mealData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis domain={[0, 3]} tick={{ fontSize: 10 }} width={24} /><Tooltip />
@@ -2434,7 +2434,7 @@ function ReportView({ data }) {
         </ChartCard>
       )}
       {poopData.length > 0 && (
-        <ChartCard title="배변 상태 (막대가 있으면 기록된 날)">
+        <ChartCard title="배변 상태 (막대가 있으면 기록된 날)" pointCount={poopData.length}>
           <BarChart data={poopData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis hide domain={[0, 1]} /><Tooltip formatter={(v, n, p) => [p.payload.상태, "배변"]} />
@@ -2445,7 +2445,7 @@ function ReportView({ data }) {
         </ChartCard>
       )}
       {symDailyData.length > 0 && (
-        <ChartCard title="증상 발생 횟수 (일별)">
+        <ChartCard title="증상 발생 횟수 (일별)" pointCount={symDailyData.length}>
           <BarChart data={symDailyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#EEF1EE" />
             <XAxis dataKey="d" tick={{ fontSize: 10 }} /><YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={24} /><Tooltip />
@@ -2559,11 +2559,20 @@ function PreVisitSummary({ data, st, medRate, compliance, onClose }) {
   );
 }
 
-function ChartCard({ title, children }) {
+function ChartCard({ title, children, pointCount }) {
+  // 데이터가 1개뿐이면 막대/영역이 전체 폭을 채워 그래프가 깨진 것처럼 보이므로
+  // 추이를 그릴 만큼(2개 이상) 쌓이기 전엔 빈 상태 안내로 대체
+  const insufficient = pointCount < 2;
   return (
     <div style={{ ...S.card, marginTop: 12 }}>
       <div style={S.cardTitle}>{title}</div>
-      <div style={{ width: "100%", height: 180 }}><ResponsiveContainer>{children}</ResponsiveContainer></div>
+      {insufficient ? (
+        <div style={{ height: 100, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", color: "#9AA5A0", fontSize: 12, lineHeight: 1.6 }}>
+          기록이 더 쌓이면<br />추이를 보여드릴게요
+        </div>
+      ) : (
+        <div style={{ width: "100%", height: 180 }}><ResponsiveContainer>{children}</ResponsiveContainer></div>
+      )}
     </div>
   );
 }
