@@ -1259,7 +1259,7 @@ export function StartScreen({ onStart, startLabel }) {
           objectPosition: "35% bottom",
           display: "block",
           zIndex: 1,
-          transform: "scale(1.105)",
+          transform: "scale(1.115)",
         }}
       />
       <style>{`
