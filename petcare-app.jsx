@@ -1582,7 +1582,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
   });
   const GROUP_LABEL = {
     0: { text: "남은 할일", color: "#2F5E45" },
-    1: { text: "지난 할일 · 건너뜀", color: "#B0682E" },
+    1: { text: "지난 할일 · 건너뜀", color: "#8A8F8A" },
     2: { text: "체크 완료", color: "#6B7280" },
   };
   const doneCount = due.filter((r) => logs[r.id]?.status === "done").length;
@@ -1711,13 +1711,13 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
               <div style={{ position: "relative", paddingLeft: 26, paddingBottom: isLast ? 0 : 14 }}>
                 {!isLast && <div style={{ position: "absolute", left: 8, top: 18, bottom: -2, width: 1, background: "#DDE4DE" }} />}
                 <div style={{ position: "absolute", left: 3, top: 16, width: 11, height: 11, borderRadius: "50%",
-                  background: done ? "#3E7C59" : skipped ? "#E0A458" : "#FFF",
+                  background: done ? "#3E7C59" : skipped ? "#ADB3AD" : "#FFF",
                   border: done || skipped ? "none" : "2px solid #C9CFCA", zIndex: 1 }} />
-                <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#FDF6ED" : "#FFF", border: skipped ? "1px solid #F0DCB8" : S.card.border }}>
+                <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#F5F6F4" : "#FFF", border: skipped ? "1px solid #DFE3DE" : S.card.border }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, color: "#9AA5A0" }}>{r.time}</span>
                     {skipped && (
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#B0682E", background: "#FBEAD3", padding: "1px 7px", borderRadius: 8 }}>건너뜀</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#6B7268", background: "#E7E9E5", padding: "1px 7px", borderRadius: 8 }}>건너뜀</span>
                     )}
                     {done && (
                       <span style={{ fontSize: 10, fontWeight: 700, color: "#2F5E45", background: "#E3F0E7", padding: "1px 7px", borderRadius: 8 }}>완료</span>
@@ -1726,7 +1726,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
                   <div onClick={() => toggle(r)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: skipped ? 0.7 : 1 }}>
                     <TypeIcon type={r.type} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: 15, color: skipped ? "#8A7355" : "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
+                      <div style={{ fontWeight: 600, fontSize: 15, color: skipped ? "#8B8F89" : "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
                       <div style={{ fontSize: 12, color: "#6B7280" }}>
                         {r.detail || TYPE_META[r.type].label}
                         {done && log.time && <span style={{ color: "#3E7C59" }}> · {log.time} 완료</span>}
