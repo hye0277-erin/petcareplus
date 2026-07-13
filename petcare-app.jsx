@@ -1317,17 +1317,17 @@ export function StartScreen({ onStart, startLabel }) {
         <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center", top: "1%" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 40 }}>
             <img src={logoUrl} alt="" style={{ width: 24, height: 24, borderRadius: 7, display: "block" }} />
-            <div style={{ color: "#10231D", fontSize: 15, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
-              PetCare<span style={{ color: "#2F6F5E", fontSize: 11, verticalAlign: "super", marginLeft: 1 }}>+</span>
+            <div style={{ color: "#10231D", fontSize: 18, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
+              PetCare<span style={{ color: "#2F6F5E", fontSize: 13, verticalAlign: "super", marginLeft: 1 }}>+</span>
             </div>
           </div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.4)", border: "1px solid #FFF", color: "#2F6F5E", fontSize: 10.5, fontWeight: 600, padding: "7px 13px", borderRadius: 20, marginBottom: 32 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.4)", border: "1px solid #FFF", color: "#2F6F5E", fontSize: 11.5, fontWeight: 600, padding: "7px 13px", borderRadius: 20, marginBottom: 32 }}>
             <ShieldCheck size={13} />우리 아이의 건강 파트너
           </div>
-          <h1 style={{ margin: 0, color: "#151A18", fontSize: 36, lineHeight: 1.2, fontWeight: 700, letterSpacing: 0 }}>
+          <h1 style={{ margin: 0, color: "#151A18", fontSize: 38, lineHeight: 1.2, fontWeight: 700, letterSpacing: 0 }}>
             아이의 하루를<br />놓치지 않게
           </h1>
-          <p style={{ margin: "10px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
+          <p style={{ margin: "4px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
             매일 케어부터 진료 기록까지,<br /><span style={{ color: "#FF6600" }}>PetCare+</span>가 함께할게요.
           </p>
         </div>
