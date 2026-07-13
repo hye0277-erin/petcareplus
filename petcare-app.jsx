@@ -1654,7 +1654,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
 
       {/* 이상 신호 배너 */}
       {anomalyCount > 0 && (
-        <button onClick={goReport} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, background: "#FDF3EC", borderColor: "#E8C9AE" }}>
+        <button onClick={goReport} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, background: "#FDF3EC", border: "1px solid #E8C9AE" }}>
           <Activity size={19} color="#B0682E" />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: "#1F2E26" }}>확인해볼 변화가 {anomalyCount}건 있어요</div>
@@ -1664,16 +1664,20 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
         </button>
       )}
 
-      {/* 다음 진료 배너 */}
+      {/* 다음 진료 배너: 이상 신호(경고 톤)와 헷갈리지 않도록 예정 일정은 중립 블루 톤으로 구분 */}
       {nv && (
-        <button onClick={goHospital} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, background: dLeft <= 3 ? "#FDF3EC" : "#FFF", borderColor: dLeft <= 3 ? "#E8C9AE" : "#E5EAE6" }}>
-          <CalendarClock size={20} color={dLeft <= 3 ? "#B0682E" : "#3E7C59"} />
+        <button onClick={goHospital} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, background: "#EFF4FA", border: "1px solid #C9DBEA" }}>
+          <CalendarClock size={20} color="#3E6FA0" />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#1F2E26" }}>다음 진료 {dLeft === 0 ? "오늘" : `D-${dLeft}`} · {fmtDate(nv.date)}{nv.time ? ` ${nv.time}` : ""}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#1F2E26" }}>
+              다음 진료 {dLeft === 0 ? "오늘" : `D-${dLeft}`}
+              {dLeft <= 3 && <span style={{ marginLeft: 6, fontSize: 10.5, fontWeight: 700, color: "#3E6FA0", background: "#DCE8F5", padding: "2px 7px", borderRadius: 8 }}>임박</span>}
+              {" · "}{fmtDate(nv.date)}{nv.time ? ` ${nv.time}` : ""}
+            </div>
             <div style={{ fontSize: 12, color: "#6B7280" }}>{nv.hospital}{nv.purpose ? ` · ${nv.purpose}` : ""}</div>
           </div>
           {moreCount > 0 && (
-            <span style={{ fontSize: 11, fontWeight: 600, color: "#3E7C59", background: "#EAF3EC", padding: "4px 8px", borderRadius: 10, flexShrink: 0 }}>+{moreCount}건 더</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#3E6FA0", background: "#DCE8F5", padding: "4px 8px", borderRadius: 10, flexShrink: 0 }}>+{moreCount}건 더</span>
           )}
           <ChevronRight size={15} color="#9AA5A0" />
         </button>
@@ -1709,7 +1713,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
                 <div style={{ position: "absolute", left: 3, top: 16, width: 11, height: 11, borderRadius: "50%",
                   background: done ? "#3E7C59" : skipped ? "#E0A458" : "#FFF",
                   border: done || skipped ? "none" : "2px solid #C9CFCA", zIndex: 1 }} />
-                <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#FDF6ED" : "#FFF", borderColor: skipped ? "#F0DCB8" : S.card.borderColor }}>
+                <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#FDF6ED" : "#FFF", border: skipped ? "1px solid #F0DCB8" : S.card.border }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, color: "#9AA5A0" }}>{r.time}</span>
                     {skipped && (
