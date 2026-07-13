@@ -24,7 +24,10 @@ if (typeof window !== "undefined") {
 }
 
 /* ─────────────────────────────────────────────
-   저장 계층 (실서비스 배포 시 IndexedDB로 교체)
+   저장 계층
+   구조화 저장소(users/{uid}/records 등 컬렉션별 문서) 도입 이전의
+   단일 문서(users/{uid}/data/petcare-v2)를 읽기 위한 레거시 폴백.
+   신규 저장은 전부 window.structuredStorage.saveDiff()로 이루어진다.
    ───────────────────────────────────────────── */
 const STORE_KEY = "petcare-v2";
 
@@ -34,10 +37,6 @@ async function loadRaw() {
   const r = await window.storage.get(STORE_KEY);
   if (r && r.value) return JSON.parse(r.value);
   return null;
-}
-async function saveData(data) {
-  try { await window.storage.set(STORE_KEY, JSON.stringify(data)); return true; }
-  catch (e) { console.error("저장 실패", e); return false; }
 }
 
 /* ───────────── 유틸 ───────────── */
@@ -907,22 +906,38 @@ export default function App({ onLogout, userEmail } = {}) {
   const [loadRetry, setLoadRetry] = useState(0);
   const dataRef = useRef(null);
   const dirtyRef = useRef(false);
+  const lastSavedRef = useRef(null); // 구조화 저장소에 마지막으로 반영된 상태(다음 저장 시 diff 기준)
 
   useEffect(() => {
     (async () => {
-      let raw;
+      let structured;
       try {
-        raw = await loadRaw();
+        structured = await window.structuredStorage.loadAll();
       } catch (e) {
         // 읽기 실패 시 기본값으로 시작하면 이후 저장이 클라우드 데이터를 덮어쓰므로 차단
         console.error("데이터 불러오기 실패", e);
         setLoadError(true);
         return;
       }
+      let d;
+      if (structured) {
+        d = migrate(structured) || DEFAULT_DATA;
+      } else {
+        // 구조화 저장소 도입 이전 계정: 기존 단일 문서에서 읽어 마이그레이션
+        let legacyRaw;
+        try {
+          legacyRaw = await loadRaw();
+        } catch (e) {
+          console.error("데이터 불러오기 실패", e);
+          setLoadError(true);
+          return;
+        }
+        d = migrate(legacyRaw) || DEFAULT_DATA;
+      }
       setLoadError(false);
-      const d = migrate(raw) || DEFAULT_DATA;
+
       // 예전 버전: 사진이 본문에 통째로 저장돼 용량 초과를 일으킴 → 분리 키로 이전
-      let moved = false;
+      let movedPhotos = false;
       for (const list of [d.records || [], d.vetVisits || []]) {
         for (const item of list) {
           if (!Array.isArray(item.photos)) continue;
@@ -932,12 +947,18 @@ export default function App({ onLogout, userEmail } = {}) {
               const pid = uid();
               await savePhotoData(pid, p);
               item.photos[i] = pid;
-              moved = true;
+              movedPhotos = true;
             }
           }
         }
       }
-      if (moved) await saveData(d);
+
+      // 최초 마이그레이션이거나 사진 이관이 있었던 경우 구조화 저장소에 반영
+      if (!structured || movedPhotos) {
+        try { await window.structuredStorage.saveDiff(structured, d); }
+        catch (e) { console.error("구조화 저장소 마이그레이션 실패", e); }
+      }
+      lastSavedRef.current = structuredClone(d);
       setData(d);
       loaded.current = true;
     })();
@@ -949,12 +970,17 @@ export default function App({ onLogout, userEmail } = {}) {
     dirtyRef.current = true;
     setSaveState("saving");
     clearTimeout(saveTimer.current);
+    const trySave = async () => {
+      await window.structuredStorage.saveDiff(lastSavedRef.current, data);
+      lastSavedRef.current = structuredClone(data);
+    };
     saveTimer.current = setTimeout(async () => {
-      let ok = await saveData(data);
+      let ok = true;
+      try { await trySave(); } catch (e) { console.error("저장 실패", e); ok = false; }
       if (!ok) {
         // 일시적 오류(요청 몰림 등)일 수 있어 잠시 후 한 번 더 시도
         await new Promise((r) => setTimeout(r, 1500));
-        ok = await saveData(data);
+        try { await trySave(); ok = true; } catch (e) { console.error("저장 재시도 실패", e); ok = false; }
       }
       if (ok && dataRef.current === data) dirtyRef.current = false;
       setSaveState(ok ? "saved" : "error");
@@ -969,7 +995,10 @@ export default function App({ onLogout, userEmail } = {}) {
       if (!dirtyRef.current || !dataRef.current) return;
       clearTimeout(saveTimer.current);
       dirtyRef.current = false;
-      saveData(dataRef.current);
+      const snapshot = dataRef.current;
+      window.structuredStorage.saveDiff(lastSavedRef.current, snapshot)
+        .then(() => { lastSavedRef.current = structuredClone(snapshot); })
+        .catch((e) => console.error("flush 저장 실패", e));
     };
     const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
     document.addEventListener("visibilitychange", onVisibility);
@@ -987,7 +1016,10 @@ export default function App({ onLogout, userEmail } = {}) {
         if (dirtyRef.current && dataRef.current) {
           clearTimeout(saveTimer.current);
           dirtyRef.current = false;
-          await saveData(dataRef.current);
+          try {
+            await window.structuredStorage.saveDiff(lastSavedRef.current, dataRef.current);
+            lastSavedRef.current = structuredClone(dataRef.current);
+          } catch (e) { console.error("로그아웃 전 저장 실패", e); }
         }
         photoCache.clear();
         videoHandleCache.clear();
@@ -2847,7 +2879,6 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
           for (const [pid, src] of Object.entries(parsed.photos)) await savePhotoData(pid, src);
         }
         setData(merged);
-        await saveData(merged);
         setImportMsg("백업을 불러왔어요");
       } catch {
         setImportMsg("파일을 읽을 수 없어요. 이 앱에서 내보낸 백업 파일인지 확인해주세요.");
@@ -2868,7 +2899,6 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
     for (const pid of photoIds) await deletePhotoData(pid);
     for (const pid of pdfIds) await deletePdfData(pid);
     setData(DEFAULT_DATA);
-    await saveData(DEFAULT_DATA);
     setConfirmReset(false);
   };
 

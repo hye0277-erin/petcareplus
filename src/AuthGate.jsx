@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "./firebase.js";
-import { createFirestoreStorage } from "./firestore-storage.js";
+import { createFirestoreStorage, createStructuredStorage } from "./firestore-storage.js";
 import App, { StartScreen } from "../petcare-app.jsx";
 
 export default function AuthGate() {
@@ -11,7 +11,10 @@ export default function AuthGate() {
 
   useEffect(() => {
     return onAuthStateChanged(auth, (u) => {
-      if (u) window.storage = createFirestoreStorage(u.uid);
+      if (u) {
+        window.storage = createFirestoreStorage(u.uid);
+        window.structuredStorage = createStructuredStorage(u.uid);
+      }
       setUser(u);
     });
   }, []);
