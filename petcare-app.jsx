@@ -11,6 +11,19 @@ import {
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
+   PWA 설치(홈 화면에 추가) 프롬프트
+   beforeinstallprompt는 컴포넌트 마운트 전에 발생할 수 있어 모듈 스코프에서 캡처
+   ───────────────────────────────────────────── */
+let deferredInstallPrompt = null;
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    window.dispatchEvent(new Event("pcplus-install-ready"));
+  });
+}
+
+/* ─────────────────────────────────────────────
    저장 계층 (실서비스 배포 시 IndexedDB로 교체)
    ───────────────────────────────────────────── */
 const STORE_KEY = "petcare-v2";
@@ -2825,6 +2838,7 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
       <div style={S.card}>
         <div style={S.cardTitle}>관리</div>
         <Row Icon={CalendarClock} title="반복 루틴 관리" desc="매일·매주 반복 케어 규칙 설정" onClick={() => setSection(section === "routines" ? null : "routines")} />
+        <InstallAppRow />
       </div>
 
       {section === "routines" && (
@@ -2948,6 +2962,61 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
         </Modal>
       )}
     </div>
+  );
+}
+
+function InstallAppRow() {
+  const [ready, setReady] = useState(typeof window !== "undefined" && !!deferredInstallPrompt);
+  const [installed, setInstalled] = useState(
+    typeof window !== "undefined" &&
+    (window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true)
+  );
+
+  useEffect(() => {
+    const onReady = () => setReady(true);
+    const onInstalled = () => { setInstalled(true); setReady(false); };
+    window.addEventListener("pcplus-install-ready", onReady);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("pcplus-install-ready", onReady);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const rowStyle = { width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, padding: "13px 2px", borderBottom: "1px solid #F0F3F0", textAlign: "left" };
+
+  if (installed) {
+    return (
+      <div style={rowStyle}>
+        <Check size={18} color="#3E7C59" />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "#1F2E26" }}>PetCare+ 열기</div>
+          <div style={{ fontSize: 11.5, color: "#9AA5A0", marginTop: 1 }}>이미 홈 화면에 설치되어 있어요</div>
+        </div>
+      </div>
+    );
+  }
+
+  const handleInstall = async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    setReady(false);
+    if (outcome === "accepted") setInstalled(true);
+  };
+
+  return (
+    <button onClick={handleInstall} disabled={!ready} style={{ ...rowStyle, cursor: ready ? "pointer" : "default", opacity: ready ? 1 : 0.5 }}>
+      <Download size={18} color="#3E7C59" />
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#1F2E26" }}>홈 화면에 설치</div>
+        <div style={{ fontSize: 11.5, color: "#9AA5A0", marginTop: 1 }}>
+          {ready ? "바로가기를 만들어 앱처럼 실행해요" : "이 브라우저에서는 아직 설치할 수 없어요"}
+        </div>
+      </div>
+      <ChevronRight size={15} color="#C9CFCA" />
+    </button>
   );
 }
 
@@ -3170,7 +3239,7 @@ function Modal({ title, children, footer, onClose }) {
 
 /* ───────────── 스타일 ───────────── */
 const S = {
-  app: { minHeight: "100dvh", background: "#F4F6F2", display: "flex", flexDirection: "column", fontFamily: "'A2z', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif", color: "#1F2E26", maxWidth: 480, margin: "0 auto", width: "100%" },
+  app: { minHeight: "100dvh", background: "#F4F6F2", display: "flex", flexDirection: "column", fontFamily: "'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif", color: "#1F2E26", maxWidth: 480, margin: "0 auto", width: "100%" },
   loading: { minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#F4F6F2" },
   content: { flex: 1, paddingBottom: 84, overflowY: "auto" },
   tabbar: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, display: "flex", background: "#FFFFFF", borderTop: "1px solid #E5EAE6", padding: "7px 0 max(10px, env(safe-area-inset-bottom))", zIndex: 40 },
