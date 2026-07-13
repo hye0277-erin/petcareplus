@@ -1044,7 +1044,7 @@ export default function App({ onLogout, userEmail } = {}) {
   /* ── PC 레이아웃: 사이드 메뉴 + 넓은 콘텐츠 ── */
   if (desktop) {
     return (
-      <div style={{ minHeight: "100vh", background: "#F4F6F2", display: "flex", fontFamily: S.app.fontFamily, color: "#1F2E26" }}>
+      <div style={{ minHeight: "100dvh", background: "#F4F6F2", display: "flex", fontFamily: S.app.fontFamily, color: "#1F2E26" }}>
         <SaveBadge state={saveState} />
         {alarmBanner}
         <aside style={{ width: 220, flexShrink: 0, background: "#FFF", borderRight: "1px solid #E5EAE6", padding: "22px 12px", position: "sticky", top: 0, height: "100vh", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
@@ -1259,6 +1259,7 @@ export function StartScreen({ onStart, startLabel }) {
           objectPosition: "35% bottom",
           display: "block",
           zIndex: 1,
+          transform: "scale(1.02)",
         }}
       />
       <style>{`
@@ -1297,7 +1298,7 @@ export function StartScreen({ onStart, startLabel }) {
       </div>
       <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "40px 24px 132px", boxSizing: "border-box" }}>
         <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 84 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 64 }}>
             <img src={logoUrl} alt="" style={{ width: 18, height: 18, borderRadius: 5, display: "block" }} />
             <div style={{ color: "#10231D", fontSize: 15, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
               PetCare<span style={{ color: "#2F6F5E", fontSize: 11, verticalAlign: "super", marginLeft: 1 }}>+</span>
@@ -1306,7 +1307,7 @@ export function StartScreen({ onStart, startLabel }) {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.4)", border: "1px solid #FFF", color: "#2F6F5E", fontSize: 10.5, fontWeight: 600, padding: "7px 13px", borderRadius: 20, marginBottom: 32 }}>
             <ShieldCheck size={13} />우리 아이의 건강 파트너
           </div>
-          <h1 style={{ margin: 0, color: "#151A18", fontSize: 36, lineHeight: 1.18, fontWeight: 700, letterSpacing: 0 }}>
+          <h1 style={{ margin: 0, color: "#151A18", fontSize: 32, lineHeight: 1.2, fontWeight: 700, letterSpacing: 0 }}>
             아이의 하루를<br />놓치지 않게
           </h1>
           <p style={{ margin: "22px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
@@ -3169,8 +3170,8 @@ function Modal({ title, children, footer, onClose }) {
 
 /* ───────────── 스타일 ───────────── */
 const S = {
-  app: { minHeight: "100vh", background: "#F4F6F2", display: "flex", flexDirection: "column", fontFamily: "'A2z', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif", color: "#1F2E26", maxWidth: 480, margin: "0 auto", width: "100%" },
-  loading: { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#F4F6F2" },
+  app: { minHeight: "100dvh", background: "#F4F6F2", display: "flex", flexDirection: "column", fontFamily: "'A2z', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif", color: "#1F2E26", maxWidth: 480, margin: "0 auto", width: "100%" },
+  loading: { minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#F4F6F2" },
   content: { flex: 1, paddingBottom: 84, overflowY: "auto" },
   tabbar: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, display: "flex", background: "#FFFFFF", borderTop: "1px solid #E5EAE6", padding: "7px 0 max(10px, env(safe-area-inset-bottom))", zIndex: 40 },
   tabBtn: { flex: 1, background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer", padding: "3px 0" },
