@@ -113,7 +113,7 @@ function KDateSelect({ value, onChange, min, max }) {
     return (
       <button type="button" onClick={() => setOpen(true)}
         style={{ ...S.input, marginBottom: 0, width: "100%", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", background: "#FFF" }}>
-        <span style={{ fontWeight: 600, color: "#1F2E26" }}>{y}년 {m}월 {d}일</span>
+        <span style={{ fontWeight: 500, color: "#1F2E26" }}>{y}년 {m}월 {d}일</span>
         <Pencil size={14} color="#9AA5A0" />
       </button>
     );
@@ -167,13 +167,13 @@ function KCalendar({ value, onChange, min, max }) {
         {mode === "days" ? (
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
             <button type="button" onClick={openYears}
-              style={{ background: "none", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 15, color: "#2F5E45", padding: "2px 4px", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              style={{ background: "none", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 15, color: "#2F5E45", padding: "2px 4px", textDecoration: "underline", textUnderlineOffset: 3 }}>
               {viewY}년
             </button>
-            <span style={{ fontWeight: 700, fontSize: 14, color: "#1F2E26" }}>{viewM}월</span>
+            <span style={{ fontWeight: 600, fontSize: 14, color: "#1F2E26" }}>{viewM}월</span>
           </div>
         ) : (
-          <span style={{ fontWeight: 800, fontSize: 14, color: "#1F2E26" }}>{yearPage}년 - {yearPage + 11}년</span>
+          <span style={{ fontWeight: 700, fontSize: 14, color: "#1F2E26" }}>{yearPage}년 - {yearPage + 11}년</span>
         )}
         <button type="button" style={navBtn} onClick={() => (mode === "days" ? nextMonth() : setYearPage(yearPage + 12))}>›</button>
       </div>
@@ -195,7 +195,7 @@ function KCalendar({ value, onChange, min, max }) {
                   style={{
                     aspectRatio: "1", border: isToday && !selected ? "1.5px solid #3E7C59" : "1.5px solid transparent", borderRadius: 8,
                     cursor: disabled ? "default" : "pointer", background: selected ? "#3E7C59" : "transparent",
-                    color: disabled ? "#D7DDD8" : selected ? "#FFF" : "#1F2E26", fontWeight: selected ? 800 : 500, fontSize: 13,
+                    color: disabled ? "#D7DDD8" : selected ? "#FFF" : "#1F2E26", fontWeight: selected ? 700 : 400, fontSize: 13,
                   }}>
                   {d}
                 </button>
@@ -210,7 +210,7 @@ function KCalendar({ value, onChange, min, max }) {
             return (
               <button key={yy} type="button" disabled={disabled} onClick={() => { setViewY(yy); setMode("days"); }}
                 style={{ padding: "10px 0", borderRadius: 9, border: yy === viewY ? "2px solid #3E7C59" : "1px solid #E5EAE6",
-                  background: yy === viewY ? "#EAF3EC" : "#FFF", color: disabled ? "#C9CFCA" : "#1F2E26", fontWeight: 700, fontSize: 13, cursor: disabled ? "default" : "pointer" }}>
+                  background: yy === viewY ? "#EAF3EC" : "#FFF", color: disabled ? "#C9CFCA" : "#1F2E26", fontWeight: 600, fontSize: 13, cursor: disabled ? "default" : "pointer" }}>
                 {yy}
               </button>
             );
@@ -550,7 +550,7 @@ function VideoViewer({ pid, onClose }) {
       )}
       {(state === "failed" || state === "unsupported") && (
         <div onClick={(e) => e.stopPropagation()} style={{ background: "#FFF", borderRadius: 14, padding: 22, maxWidth: 320, textAlign: "center" }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: "#1F2E26", marginBottom: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#1F2E26", marginBottom: 8 }}>
             {state === "unsupported" ? "이 화면에서는 재생할 수 없어요" : "원본 영상을 찾을 수 없어요"}
           </div>
           <div style={{ fontSize: 12.5, color: "#6B7280", lineHeight: 1.6 }}>
@@ -675,7 +675,7 @@ function Avatar({ pet, size = 46, light }) {
   if (pet.photo)
     return <img src={pet.photo} alt={pet.name} style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: light ? "2px solid rgba(255,255,255,.35)" : "2px solid #EAF3EC" }} />;
   return (
-    <div style={{ width: size, height: size, borderRadius: "50%", background: light ? "rgba(255,255,255,.15)" : "#EAF3EC", color: light ? "#FFF" : "#2F5E45", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 800, flexShrink: 0 }}>
+    <div style={{ width: size, height: size, borderRadius: "50%", background: light ? "rgba(255,255,255,.15)" : "#EAF3EC", color: light ? "#FFF" : "#2F5E45", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 700, flexShrink: 0 }}>
       {pet.name[0]}
     </div>
   );
@@ -704,7 +704,7 @@ function PhotoPicker({ photo, name, onChange }) {
         <img src={photo} alt="" style={{ width: 76, height: 76, borderRadius: "50%", objectFit: "cover" }} />
       ) : (
         <div style={{ width: 76, height: 76, borderRadius: "50%", background: "#EAF3EC", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {name ? <span style={{ fontSize: 28, fontWeight: 800, color: "#2F5E45" }}>{name[0]}</span> : <Camera size={26} color="#3E7C59" />}
+          {name ? <span style={{ fontSize: 28, fontWeight: 700, color: "#2F5E45" }}>{name[0]}</span> : <Camera size={26} color="#3E7C59" />}
         </div>
       )}
       <div style={{ display: "flex", gap: 8 }}>
@@ -1026,7 +1026,7 @@ export default function App() {
         <div key={r.id} style={{ ...S.card, display: "flex", alignItems: "center", gap: 10, marginBottom: 6, borderColor: "#E8C9AE", background: "#FDF3EC", boxShadow: "0 4px 14px rgba(31,46,38,.15)" }}>
           <Bell size={18} color="#B0682E" />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 800, color: "#1F2E26" }}>{data.pet.name} 케어 시간이에요</div>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1F2E26" }}>{data.pet.name} 케어 시간이에요</div>
             <div style={{ fontSize: 12, color: "#6B7280" }}>{r.time} · {r.name}{r.detail ? ` (${r.detail})` : ""}</div>
           </div>
           <button style={{ ...S.chip, padding: "7px 12px", fontSize: 12, background: "#3E7C59", borderColor: "#3E7C59", color: "#FFF", flexShrink: 0 }}
@@ -1052,14 +1052,14 @@ export default function App() {
         <aside style={{ width: 220, flexShrink: 0, background: "#FFF", borderRight: "1px solid #E5EAE6", padding: "22px 12px", position: "sticky", top: 0, height: "100vh", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 10px 22px" }}>
             <img src={logoUrl} alt="" style={{ width: 26, height: 26, borderRadius: 7, display: "block" }} />
-            <span style={{ fontWeight: 800, fontSize: 17 }}>PetCare<span style={{ color: "#2F6F5E", fontSize: 13, verticalAlign: "super" }}>+</span></span>
+            <span style={{ fontWeight: 700, fontSize: 17 }}>PetCare<span style={{ color: "#2F6F5E", fontSize: 13, verticalAlign: "super" }}>+</span></span>
           </div>
           {TABS.map(([k, label, Icon]) => {
             const on = tab === k;
             return (
               <button key={k} onClick={() => setTab(k)}
                 style={{ display: "flex", alignItems: "center", gap: 11, width: "100%", padding: "11px 12px", borderRadius: 12, border: "none", cursor: "pointer", marginBottom: 3, textAlign: "left",
-                  background: on ? "#EAF3EC" : "transparent", color: on ? "#2F5E45" : "#6B7280", fontWeight: on ? 800 : 600, fontSize: 14 }}>
+                  background: on ? "#EAF3EC" : "transparent", color: on ? "#2F5E45" : "#6B7280", fontWeight: on ? 700 : 500, fontSize: 14 }}>
                 <Icon size={19} strokeWidth={on ? 2.3 : 1.8} />{label}
               </button>
             );
@@ -1067,7 +1067,7 @@ export default function App() {
           <div style={{ marginTop: "auto", padding: "12px 10px 0", borderTop: "1px solid #F0F3F0", display: "flex", alignItems: "center", gap: 9 }}>
             <Avatar pet={data.pet} size={32} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{data.pet.name}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{data.pet.name}</div>
               <div style={{ fontSize: 10.5, color: "#9AA5A0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{[data.pet.age, data.pet.breed || data.pet.species].filter(Boolean).join(" · ")}</div>
             </div>
           </div>
@@ -1105,7 +1105,7 @@ export default function App() {
           return (
             <button key={k} onClick={() => setTab(k)} style={{ ...S.tabBtn, color: on ? "#2F5E45" : "#9AA5A0" }}>
               <Icon size={21} strokeWidth={on ? 2.4 : 1.8} />
-              <span style={{ fontSize: 10.5, fontWeight: on ? 700 : 500 }}>{label}</span>
+              <span style={{ fontSize: 10.5, fontWeight: on ? 600 : 400 }}>{label}</span>
             </button>
           );
         })}
@@ -1185,7 +1185,7 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
       {!cat ? (
         <>
         {justSaved && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 12.5, fontWeight: 700, color: "#2F5E45", background: "#EAF3EC", borderRadius: 10, padding: "9px 12px", marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 12.5, fontWeight: 600, color: "#2F5E45", background: "#EAF3EC", borderRadius: 10, padding: "9px 12px", marginBottom: 12 }}>
             <Check size={14} /> {justSaved} 기록이 저장됐어요. 이어서 기록해보세요.
           </div>
         )}
@@ -1197,7 +1197,7 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
                 <div style={{ width: 48, height: 48, borderRadius: 15, background: m.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <I size={22} color={m.color} />
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#556158" }}>{m.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: "#556158" }}>{m.label}</span>
               </button>
             );
           })}
@@ -1254,17 +1254,12 @@ function StartScreen({ onStart }) {
         alt=""
         style={{
           position: "absolute",
-          left: "50%",
-          bottom: 100,
-          width: "min(185%, 880px)",
-          height: "auto",
-          maxHeight: "82vh",
-          objectFit: "contain",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
           objectPosition: "center bottom",
           display: "block",
-          transform: "translateX(-50%)",
-          WebkitMaskImage: "linear-gradient(180deg, transparent 0%, #000 13%, #000 92%, transparent 100%)",
-          maskImage: "linear-gradient(180deg, transparent 0%, #000 13%, #000 92%, transparent 100%)",
           zIndex: 1,
         }}
       />
@@ -1275,49 +1270,49 @@ function StartScreen({ onStart }) {
         }
         .start-float-card { animation: startCardFloat 4s ease-in-out infinite; will-change: transform; }
       `}</style>
-      <div className="start-float-card" style={{ position: "absolute", left: 60, top: "48%", zIndex: 2, "--rot": "0deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
-        <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Check size={17} color="#2F6F5E" strokeWidth={3} />
+      <div className="start-float-card" style={{ position: "absolute", left: 60, top: "44%", zIndex: 2, "--rot": "0deg", animationDelay: "0s", display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "9px 12px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+        <div style={{ width: 28, height: 28, borderRadius: 8, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Check size={14} color="#2F6F5E" strokeWidth={3} />
         </div>
         <div>
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#556158" }}>아침 투약 완료</div>
-          <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>08:00</div>
+          <div style={{ fontSize: 11, fontWeight: 300, color: "#556158" }}>아침 투약 완료</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#151A18" }}>08:00</div>
         </div>
       </div>
-      <div className="start-float-card" style={{ position: "absolute", right: 10, top: "54%", zIndex: 2, "--rot": "0deg", animationDelay: "1.3s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
-        <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <CalendarClock size={17} color="#2F6F5E" />
+      <div className="start-float-card" style={{ position: "absolute", right: 10, top: "52.5%", zIndex: 2, "--rot": "0deg", animationDelay: "1.3s", display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "9px 12px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+        <div style={{ width: 28, height: 28, borderRadius: 8, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <CalendarClock size={14} color="#2F6F5E" />
         </div>
         <div>
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#556158" }}>다음 진료</div>
-          <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>D-8</div>
+          <div style={{ fontSize: 11, fontWeight: 300, color: "#556158" }}>다음 진료</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#151A18" }}>D-8</div>
         </div>
       </div>
-      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "66%", zIndex: 2, "--rot": "0deg", animationDelay: "2.6s", display: "flex", alignItems: "center", gap: 11, background: "#FFF", borderRadius: 16, padding: "12px 16px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
-        <div style={{ width: 34, height: 34, borderRadius: 10, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <BarChart3 size={17} color="#2F6F5E" />
+      <div className="start-float-card" style={{ position: "absolute", left: 12, top: "70%", zIndex: 2, "--rot": "0deg", animationDelay: "2.6s", display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.6)", borderRadius: 14, padding: "9px 12px", boxShadow: "0 10px 24px rgba(31,46,38,.10)" }}>
+        <div style={{ width: 28, height: 28, borderRadius: 8, background: "#E3F0E7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <BarChart3 size={14} color="#2F6F5E" />
         </div>
         <div>
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#556158" }}>이번 주 케어</div>
-          <div style={{ fontSize: 15, fontWeight: 900, color: "#151A18" }}>92%</div>
+          <div style={{ fontSize: 11, fontWeight: 300, color: "#556158" }}>이번 주 케어</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: "#151A18" }}>92%</div>
         </div>
       </div>
-      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "48px 24px 132px", boxSizing: "border-box" }}>
-        <div style={{ flexShrink: 0, position: "relative", zIndex: 2 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 40 }}>
-            <img src={logoUrl} alt="" style={{ width: 30, height: 30, borderRadius: 8, display: "block" }} />
-            <div style={{ color: "#10231D", fontSize: 18, fontWeight: 900, letterSpacing: 0, lineHeight: 1 }}>
-              PetCare<span style={{ color: "#2F6F5E", fontSize: 14, verticalAlign: "super", marginLeft: 1 }}>+</span>
+      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "76px 24px 132px", boxSizing: "border-box" }}>
+        <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 40, position: "relative", top: -32 }}>
+            <img src={logoUrl} alt="" style={{ width: 22, height: 22, borderRadius: 6, display: "block" }} />
+            <div style={{ color: "#10231D", fontSize: 20, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
+              PetCare<span style={{ color: "#2F6F5E", fontSize: 15, verticalAlign: "super", marginLeft: 1 }}>+</span>
             </div>
           </div>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#E3F0E7", color: "#2F6F5E", fontSize: 11.5, fontWeight: 700, padding: "7px 14px", borderRadius: 20, marginBottom: 22 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.7)", color: "#2F6F5E", fontSize: 11.5, fontWeight: 600, padding: "7px 14px", borderRadius: 20, marginBottom: 32 }}>
             <ShieldCheck size={13} />우리 아이 건강 파트너
           </div>
-          <h1 style={{ margin: 0, color: "#151A18", fontSize: 34, lineHeight: 1.3, fontWeight: 900, letterSpacing: -0.5 }}>
+          <h1 style={{ margin: 0, color: "#151A18", fontSize: 36, lineHeight: 1.15, fontWeight: 700, letterSpacing: -0.5 }}>
             아이의 하루를,<br />놓치지 않게
           </h1>
-          <p style={{ margin: "14px 0 0", color: "#6B7280", fontSize: 14.5, lineHeight: 1.7, fontWeight: 700, letterSpacing: 0 }}>
-            케어부터 진료 기록까지, PetCare+가 함께해요
+          <p style={{ margin: "22px 0 0", color: "#3D3D3D", fontSize: 13.5, lineHeight: 1.6, fontWeight: 600, letterSpacing: 0, whiteSpace: "nowrap" }}>
+            매일의 케어부터 진료 기록까지, PetCare+가 함께할게요
           </p>
         </div>
       </main>
@@ -1406,16 +1401,16 @@ function Onboarding({ onDone }) {
         </div>
         {templates.length > 0 && (
           <div style={{ ...S.card, background: "#F7F9F6", marginBottom: 16 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 800, color: "#2F5E45", marginBottom: 6 }}>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: "#2F5E45", marginBottom: 6 }}>
               선택한 템플릿 {templates.length}개 · 아래 {templates.reduce((s, t) => s + TEMPLATES[t].length, 0)}개 루틴이 자동으로 추가돼요
             </div>
             {templates.map((t) => (
               <div key={t} style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#9AA5A0", margin: "6px 0 2px" }}>{t}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#9AA5A0", margin: "6px 0 2px" }}>{t}</div>
                 {TEMPLATES[t].map((r, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "#556158", padding: "3px 0" }}>
                     <TypeIcon type={r.type} size={13} />
-                    <span style={{ fontWeight: 700, color: "#1F2E26" }}>{r.name}</span>
+                    <span style={{ fontWeight: 600, color: "#1F2E26" }}>{r.name}</span>
                     <span>{r.detail}</span>
                     <span style={{ marginLeft: "auto", color: "#9AA5A0" }}>{r.time}</span>
                   </div>
@@ -1515,7 +1510,6 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
       if (detailFor === r.id) setDetailFor(null);
     } else {
       setLog(r.id, { status: "done", time: nowTime() });
-      setDetailFor(r.id);
     }
   };
 
@@ -1525,19 +1519,19 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
       <button onClick={goSettings} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 12, background: "#2F5E45", border: "none", color: "#FFF" }}>
         <Avatar pet={pet} light />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 800, fontSize: 16 }}>{pet.name}</div>
+          <div style={{ fontWeight: 700, fontSize: 16 }}>{pet.name}</div>
           <div style={{ fontSize: 12, opacity: 0.85 }}>{[pet.age, pet.breed || pet.species].filter(Boolean).join(" · ")}</div>
           {pet.tags?.length > 0 && (
             <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 6 }}>
               {pet.tags.map((t) => (
-                <span key={t} style={{ fontSize: 10.5, fontWeight: 700, background: "rgba(255,255,255,.18)", padding: "3px 8px", borderRadius: 10 }}>{t}</span>
+                <span key={t} style={{ fontSize: 10.5, fontWeight: 600, background: "rgba(255,255,255,.18)", padding: "3px 8px", borderRadius: 10 }}>{t}</span>
               ))}
             </div>
           )}
         </div>
         <div style={{ textAlign: "center", flexShrink: 0 }}>
           <div style={{ fontSize: 11, opacity: 0.85 }}>오늘 케어</div>
-          <div style={{ fontSize: 18, fontWeight: 800 }}>{doneCount}<span style={{ fontSize: 12, opacity: 0.7 }}> / {due.length}</span></div>
+          <div style={{ fontSize: 18, fontWeight: 700 }}>{doneCount}<span style={{ fontSize: 12, opacity: 0.7 }}> / {due.length}</span></div>
         </div>
         <ChevronRight size={16} style={{ opacity: 0.6, flexShrink: 0 }} />
       </button>
@@ -1547,7 +1541,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
         <button onClick={goReport} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, background: "#FDF3EC", borderColor: "#E8C9AE" }}>
           <Activity size={19} color="#B0682E" />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1F2E26" }}>확인해볼 변화가 {anomalyCount}건 있어요</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#1F2E26" }}>확인해볼 변화가 {anomalyCount}건 있어요</div>
             <div style={{ fontSize: 12, color: "#6B7280" }}>리포트에서 자세히 보기</div>
           </div>
           <ChevronRight size={15} color="#9AA5A0" />
@@ -1559,11 +1553,11 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
         <button onClick={goHospital} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, background: dLeft <= 3 ? "#FDF3EC" : "#FFF", borderColor: dLeft <= 3 ? "#E8C9AE" : "#E5EAE6" }}>
           <CalendarClock size={20} color={dLeft <= 3 ? "#B0682E" : "#3E7C59"} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1F2E26" }}>다음 진료 {dLeft === 0 ? "오늘" : `D-${dLeft}`} · {fmtDate(nv.date)}{nv.time ? ` ${nv.time}` : ""}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#1F2E26" }}>다음 진료 {dLeft === 0 ? "오늘" : `D-${dLeft}`} · {fmtDate(nv.date)}{nv.time ? ` ${nv.time}` : ""}</div>
             <div style={{ fontSize: 12, color: "#6B7280" }}>{nv.hospital}{nv.purpose ? ` · ${nv.purpose}` : ""}</div>
           </div>
           {moreCount > 0 && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#3E7C59", background: "#EAF3EC", padding: "4px 8px", borderRadius: 10, flexShrink: 0 }}>+{moreCount}건 더</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#3E7C59", background: "#EAF3EC", padding: "4px 8px", borderRadius: 10, flexShrink: 0 }}>+{moreCount}건 더</span>
           )}
           <ChevronRight size={15} color="#9AA5A0" />
         </button>
@@ -1586,11 +1580,11 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
               {!isLast && <div style={{ position: "absolute", left: 8, top: 18, bottom: -2, width: 1, background: "#DDE4DE" }} />}
               <div style={{ position: "absolute", left: 3, top: 16, width: 11, height: 11, borderRadius: "50%", background: done ? "#3E7C59" : "#FFF", border: done ? "none" : "2px solid #C9CFCA", zIndex: 1 }} />
               <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#FAFAF9" : "#FFF" }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#9AA5A0", marginBottom: 6 }}>{r.time}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#9AA5A0", marginBottom: 6 }}>{r.time}</div>
                 <div onClick={() => toggle(r)} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: skipped ? 0.55 : 1 }}>
                   <TypeIcon type={r.type} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
+                    <div style={{ fontWeight: 600, fontSize: 15, color: "#1F2E26", textDecoration: skipped ? "line-through" : "none" }}>{r.name}</div>
                     <div style={{ fontSize: 12, color: "#6B7280" }}>
                       {r.detail || TYPE_META[r.type].label}
                       {done && log.time && <span style={{ color: "#3E7C59" }}> · {log.time} 완료</span>}
@@ -1769,7 +1763,7 @@ function LogView({ data, update }) {
               style={{ ...S.chip, display: "flex", alignItems: "center", gap: 5, flexShrink: 0, ...(activeCount > 0 ? S.chipOn : {}) }}>
               <SlidersHorizontal size={13} /> 필터
               {activeCount > 0 && (
-                <span style={{ background: "#3E7C59", color: "#FFF", borderRadius: 8, fontSize: 10, fontWeight: 800, padding: "1px 5px", marginLeft: 1 }}>{activeCount}</span>
+                <span style={{ background: "#3E7C59", color: "#FFF", borderRadius: 8, fontSize: 10, fontWeight: 700, padding: "1px 5px", marginLeft: 1 }}>{activeCount}</span>
               )}
             </button>
             <div style={{ fontSize: 12.5, color: "#556158", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -1851,7 +1845,7 @@ function LogView({ data, update }) {
       )}
       {grouped.map(([dt, recs]) => (
         <div key={dt} style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#556158", margin: "0 0 6px 2px" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#556158", margin: "0 0 6px 2px" }}>
             {dt === date ? "오늘" : fmtDate(dt)}
           </div>
           {recs.map((r) => {
@@ -1863,7 +1857,7 @@ function LogView({ data, update }) {
                     <I size={15} color={m.color} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1F2E26" }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, color: "#1F2E26" }}>
                       {m.label}
                       {r.cat !== "memo" && r.value !== "" && <span style={{ color: m.color }}> · {r.value}{m.unit || ""}</span>}
                     </div>
@@ -1916,7 +1910,7 @@ function LogView({ data, update }) {
 
 function SummaryBadge({ Icon, color, bg, text }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: bg, color, fontSize: 12, fontWeight: 700, padding: "6px 10px", borderRadius: 10 }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: bg, color, fontSize: 12, fontWeight: 600, padding: "6px 10px", borderRadius: 10 }}>
       <Icon size={13} />{text}
     </span>
   );
@@ -1925,11 +1919,11 @@ function SummaryBadge({ Icon, color, bg, text }) {
 function ScoreRow({ label, value, onChange }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-      <div style={{ width: 36, fontSize: 13, fontWeight: 700, color: "#1F2E26" }}>{label}</div>
+      <div style={{ width: 36, fontSize: 13, fontWeight: 600, color: "#1F2E26" }}>{label}</div>
       <div style={{ display: "flex", gap: 5, flex: 1 }}>
         {[0, 1, 2, 3, 4, 5].map((v) => (
           <button key={v} onClick={() => onChange(v)}
-            style={{ flex: 1, height: 34, borderRadius: 9, border: "1px solid " + (value === v ? "#3E7C59" : "#E5EAE6"), background: value === v ? "#3E7C59" : "#FFF", color: value === v ? "#FFF" : "#6B7280", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+            style={{ flex: 1, height: 34, borderRadius: 9, border: "1px solid " + (value === v ? "#3E7C59" : "#E5EAE6"), background: value === v ? "#3E7C59" : "#FFF", color: value === v ? "#FFF" : "#6B7280", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
             {v}
           </button>
         ))}
@@ -2113,10 +2107,10 @@ function ReportView({ data }) {
           {data.pet.name}{data.pet.tags?.[0] ? ` · ${data.pet.tags[0]}` : ""} · {fmtDate(st.dates[0])} ~ {fmtDate(st.dates[st.dates.length - 1])}
         </div>
         <div style={{ display: "flex", gap: 20, marginTop: 10, flexWrap: "wrap" }}>
-          <div><div style={{ fontSize: 24, fontWeight: 800 }}>{medRate === null ? "—" : medRate + "%"}</div><div style={{ fontSize: 11, opacity: 0.85 }}>복약 완료율</div></div>
-          <div><div style={{ fontSize: 24, fontWeight: 800 }}>{st.sym.length}회</div><div style={{ fontSize: 11, opacity: 0.85 }}>증상 기록</div></div>
-          <div><div style={{ fontSize: 24, fontWeight: 800 }}>{st.mealLow}회</div><div style={{ fontSize: 11, opacity: 0.85 }}>식사량 감소</div></div>
-          {nv && dLeft >= 0 && <div><div style={{ fontSize: 24, fontWeight: 800 }}>D-{dLeft}</div><div style={{ fontSize: 11, opacity: 0.85 }}>다음 진료</div></div>}
+          <div><div style={{ fontSize: 24, fontWeight: 700 }}>{medRate === null ? "—" : medRate + "%"}</div><div style={{ fontSize: 11, opacity: 0.85 }}>복약 완료율</div></div>
+          <div><div style={{ fontSize: 24, fontWeight: 700 }}>{st.sym.length}회</div><div style={{ fontSize: 11, opacity: 0.85 }}>증상 기록</div></div>
+          <div><div style={{ fontSize: 24, fontWeight: 700 }}>{st.mealLow}회</div><div style={{ fontSize: 11, opacity: 0.85 }}>식사량 감소</div></div>
+          {nv && dLeft >= 0 && <div><div style={{ fontSize: 24, fontWeight: 700 }}>D-{dLeft}</div><div style={{ fontSize: 11, opacity: 0.85 }}>다음 진료</div></div>}
         </div>
         {lastVisit && (
           <div style={{ fontSize: 11, opacity: 0.85, marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,.2)" }}>
@@ -2135,13 +2129,13 @@ function ReportView({ data }) {
           <div style={{ ...S.card, marginTop: 12, borderColor: "#E8C9AE" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
               <Activity size={15} color="#B0682E" />
-              <span style={{ fontSize: 13, fontWeight: 800, color: "#1F2E26" }}>확인해보세요</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#1F2E26" }}>확인해보세요</span>
             </div>
             {alerts.map((a, i) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "7px 8px", background: a.bg, borderRadius: 10, marginBottom: 6 }}>
                 <span style={{ width: 7, height: 7, borderRadius: 4, background: a.color, marginTop: 5, flexShrink: 0 }} />
                 <div>
-                  <div style={{ fontSize: 12.5, fontWeight: 700, color: "#1F2E26" }}>{a.title}</div>
+                  <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1F2E26" }}>{a.title}</div>
                   <div style={{ fontSize: 11.5, color: "#556158" }}>{a.detail}</div>
                 </div>
               </div>
@@ -2159,7 +2153,7 @@ function ReportView({ data }) {
           <Stethoscope size={18} color="#3E7C59" />
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: 14, color: "#1F2E26" }}>진료 전 요약 보기</div>
+          <div style={{ fontWeight: 700, fontSize: 14, color: "#1F2E26" }}>진료 전 요약 보기</div>
           <div style={{ fontSize: 12, color: "#6B7280" }}>수의사에게 보여주거나 복사해서 보낼 수 있어요</div>
         </div>
         <ChevronRight size={16} color="#9AA5A0" />
@@ -2231,7 +2225,7 @@ function ReportView({ data }) {
             <Scale size={18} color="#7C6BAE" />
           </div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#1F2E26" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1F2E26" }}>
               체중 변화 <span style={{ color: st.weightDelta < 0 ? "#B65C68" : "#3E7C59" }}>{st.weightDelta > 0 ? "+" : ""}{st.weightDelta}kg</span>
             </div>
             <div style={{ fontSize: 12, color: "#6B7280" }}>현재 {st.weights[st.weights.length - 1].value}kg · 기간 내 {st.weights.length}회 측정</div>
@@ -2468,8 +2462,8 @@ function HospitalView({ data, update }) {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <CalendarClock size={24} color={overdue ? "#B65C68" : dLeft <= 3 ? "#B0682E" : "#3E7C59"} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 15, color: "#1F2E26" }}>
-                  {fmtDate(v.date)}{v.time && <span style={{ fontWeight: 700, color: "#556158" }}> {v.time}</span>}
+                <div style={{ fontWeight: 700, fontSize: 15, color: "#1F2E26" }}>
+                  {fmtDate(v.date)}{v.time && <span style={{ fontWeight: 600, color: "#556158" }}> {v.time}</span>}
                   <span style={{ fontSize: 12, marginLeft: 8, color: overdue ? "#B65C68" : "#3E7C59" }}>
                     {dLeft === 0 ? "오늘" : dLeft > 0 ? `D-${dLeft}` : `${-dLeft}일 지남`}
                   </span>
@@ -2504,18 +2498,18 @@ function HospitalView({ data, update }) {
           <div key={v.id} style={{ ...S.card, marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Building2 size={16} color="#3E7C59" />
-              <div style={{ fontWeight: 800, fontSize: 14, color: "#1F2E26", flex: 1 }}>{fmtDate(v.date)} · {v.hospital}</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: "#1F2E26", flex: 1 }}>{fmtDate(v.date)} · {v.hospital}</div>
               <button style={S.iconBtn} onClick={() => setEditVisit(v)}><Pencil size={14} color="#6B7280" /></button>
             </div>
             {v.reason && <div style={{ fontSize: 12, color: "#6B7280", marginTop: 4 }}>진료 사유: {v.reason}</div>}
             {v.result && (
               <div style={{ fontSize: 13, color: "#1F2E26", marginTop: 8, background: "#F7F9F6", padding: "10px 12px", borderRadius: 10, lineHeight: 1.6 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#2F5E45", marginBottom: 3 }}>결과·소견</div>{v.result}
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#2F5E45", marginBottom: 3 }}>결과·소견</div>{v.result}
               </div>
             )}
             {v.rx && (
               <div style={{ fontSize: 13, color: "#1F2E26", marginTop: 6, background: "#F1EEF8", padding: "10px 12px", borderRadius: 10, lineHeight: 1.6 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#7C6BAE", marginBottom: 3 }}>처방·변경 사항</div>{v.rx}
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#7C6BAE", marginBottom: 3 }}>처방·변경 사항</div>{v.rx}
               </div>
             )}
             {v.photos?.length > 0 && (
@@ -2701,7 +2695,7 @@ function VisitEditor({ visit, defaultHospital, onSave, onDelete, onClose }) {
               style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${nextDate ? "#3E7C59" : "#C9CFCA"}`, background: nextDate ? "#3E7C59" : "#FFF", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
               {nextDate && <Check size={13} color="#FFF" strokeWidth={3} />}
             </button>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#1F2E26" }}>다음 진료 예약도 함께 등록</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#1F2E26" }}>다음 진료 예약도 함께 등록</span>
           </div>
           {nextDate && (
             <>
@@ -2791,7 +2785,7 @@ function SettingsView({ data, update, setData }) {
       <>
         <Icon size={18} color={danger ? "#B65C68" : "#3E7C59"} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: danger ? "#B65C68" : "#1F2E26" }}>{title}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: danger ? "#B65C68" : "#1F2E26" }}>{title}</div>
           {desc && <div style={{ fontSize: 11.5, color: "#9AA5A0", marginTop: 1 }}>{desc}</div>}
         </div>
         <ChevronRight size={15} color="#C9CFCA" />
@@ -2818,11 +2812,11 @@ function SettingsView({ data, update, setData }) {
       <button onClick={() => setSection("pet")} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, margin: "12px 0 16px" }}>
         <Avatar pet={pet} size={44} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: 15 }}>{pet.name}</div>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>{pet.name}</div>
           <div style={{ fontSize: 12, color: "#6B7280" }}>{[pet.age, pet.breed || pet.species].filter(Boolean).join(" · ")}</div>
           {pet.tags?.length > 0 && (
             <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 5 }}>
-              {pet.tags.map((t) => <span key={t} style={{ fontSize: 10.5, fontWeight: 700, background: "#EAF3EC", color: "#2F5E45", padding: "3px 8px", borderRadius: 10 }}>{t}</span>)}
+              {pet.tags.map((t) => <span key={t} style={{ fontSize: 10.5, fontWeight: 600, background: "#EAF3EC", color: "#2F5E45", padding: "3px 8px", borderRadius: 10 }}>{t}</span>)}
             </div>
           )}
         </div>
@@ -2841,7 +2835,7 @@ function SettingsView({ data, update, setData }) {
             <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid #F0F3F0", opacity: r.active ? 1 : 0.5 }}>
               <TypeIcon type={r.type} size={15} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 13.5 }}>{r.name}</div>
+                <div style={{ fontWeight: 600, fontSize: 13.5 }}>{r.name}</div>
                 <div style={{ fontSize: 11, color: "#6B7280" }}>
                   {r.time} · {r.repeat === "daily" ? "매일" : r.repeat === "weekdays" ? (r.weekdays || []).map((w) => WEEKDAYS[w]).join("") + "요일" : `${r.intervalDays}일마다`}
                   {r.detail && ` · ${r.detail}`}
@@ -2877,7 +2871,7 @@ function SettingsView({ data, update, setData }) {
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "4px 2px 10px" }}>
           {data.settings?.alarmEnabled !== false ? <Bell size={18} color="#3E7C59" /> : <BellOff size={18} color="#9AA5A0" />}
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1F2E26" }}>케어 시간 알림</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#1F2E26" }}>케어 시간 알림</div>
             <div style={{ fontSize: 11.5, color: "#9AA5A0", marginTop: 1 }}>루틴 시간이 되면 화면 상단에 알려드려요 (앱이 열려 있을 때)</div>
           </div>
           <button
@@ -2941,7 +2935,7 @@ function SettingsView({ data, update, setData }) {
               <button style={{ ...S.secondaryBtn, marginTop: 8 }} onClick={() => setConfirmReset(false)}>취소</button>
             </>
           }>
-          <p style={{ fontSize: 13, color: "#8E3B47", margin: 0, fontWeight: 700, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: "#8E3B47", margin: 0, fontWeight: 600, lineHeight: 1.6 }}>
             모든 기록이 삭제되고 처음 화면으로 돌아가요. 되돌릴 수 없어요.<br />초기화 전에 백업 파일을 먼저 내려받는 것을 권장해요.
           </p>
         </Modal>
@@ -2958,7 +2952,7 @@ function NotifyPermissionRow() {
   const label = perm === "granted" ? "브라우저 알림 허용됨" : perm === "denied" ? "브라우저 알림 차단됨 (브라우저 설정에서 변경)" : "브라우저 알림 권한 요청";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 2px 0", borderTop: "1px solid #F0F3F0" }}>
-      <div style={{ flex: 1, fontSize: 13, color: perm === "granted" ? "#2F5E45" : "#556158", fontWeight: 600 }}>{label}</div>
+      <div style={{ flex: 1, fontSize: 13, color: perm === "granted" ? "#2F5E45" : "#556158", fontWeight: 500 }}>{label}</div>
       {perm === "default" && (
         <button style={{ ...S.chip, fontSize: 12, padding: "6px 12px" }}
           onClick={async () => { try { setPerm(await Notification.requestPermission()); } catch { /* 미지원 */ } }}>
@@ -3028,13 +3022,13 @@ const QueuePreview = React.memo(function QueuePreview({ queue, onRemove }) {
   if (queue.length === 0) return null;
   return (
     <div style={{ ...S.card, background: "#F7F9F6", marginBottom: 14 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 800, color: "#2F5E45", marginBottom: 6 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 700, color: "#2F5E45", marginBottom: 6 }}>
         저장 대기 중인 루틴 {queue.length}개
       </div>
       {queue.map((q, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0" }}>
           <TypeIcon type={q.type} size={13} />
-          <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1F2E26", flex: 1 }}>{q.name}</span>
+          <span style={{ fontSize: 12.5, fontWeight: 600, color: "#1F2E26", flex: 1 }}>{q.name}</span>
           <span style={{ fontSize: 11, color: "#9AA5A0" }}>{q.time}</span>
           <button style={S.iconBtn} onClick={() => onRemove(i)}>
             <X size={13} color="#B65C68" />
@@ -3169,23 +3163,23 @@ function Modal({ title, children, footer, onClose }) {
 
 /* ───────────── 스타일 ───────────── */
 const S = {
-  app: { minHeight: "100vh", background: "#F4F6F2", display: "flex", flexDirection: "column", fontFamily: "'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif", color: "#1F2E26", maxWidth: 480, margin: "0 auto", width: "100%" },
+  app: { minHeight: "100vh", background: "#F4F6F2", display: "flex", flexDirection: "column", fontFamily: "'A2z', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif", color: "#1F2E26", maxWidth: 480, margin: "0 auto", width: "100%" },
   loading: { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#F4F6F2" },
   content: { flex: 1, paddingBottom: 84, overflowY: "auto" },
   tabbar: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, display: "flex", background: "#FFFFFF", borderTop: "1px solid #E5EAE6", padding: "7px 0 max(10px, env(safe-area-inset-bottom))", zIndex: 40 },
   tabBtn: { flex: 1, background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer", padding: "3px 0" },
   fab: { position: "fixed", right: "max(16px, calc(50% - 224px))", bottom: 86, width: 54, height: 54, borderRadius: "50%", background: "#3E7C59", border: "none", boxShadow: "0 4px 14px rgba(47,94,69,.35)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 45 },
-  h2: { fontSize: 19, fontWeight: 800, margin: 0, color: "#1F2E26", letterSpacing: "-0.3px" },
-  h3: { fontSize: 15.5, fontWeight: 800, margin: 0, color: "#1F2E26", letterSpacing: "-0.2px" },
+  h2: { fontSize: 19, fontWeight: 700, margin: 0, color: "#1F2E26", letterSpacing: "-0.3px" },
+  h3: { fontSize: 15.5, fontWeight: 700, margin: 0, color: "#1F2E26", letterSpacing: "-0.2px" },
   card: { background: "#FFF", borderRadius: 14, padding: 14, border: "1px solid #E5EAE6", boxShadow: "0 1px 2px rgba(31,46,38,.03)" },
-  cardTitle: { fontSize: 13, fontWeight: 800, color: "#2F5E45", marginBottom: 8 },
-  label: { display: "block", fontSize: 12, fontWeight: 700, color: "#556158", marginBottom: 5 },
+  cardTitle: { fontSize: 13, fontWeight: 700, color: "#2F5E45", marginBottom: 8 },
+  label: { display: "block", fontSize: 12, fontWeight: 600, color: "#556158", marginBottom: 5 },
   input: { width: "100%", boxSizing: "border-box", padding: "11px 12px", borderRadius: 10, border: "1px solid #DDE4DE", fontSize: 14, marginBottom: 14, background: "#FFF", color: "#1F2E26", outline: "none" },
-  chip: { padding: "8px 14px", borderRadius: 20, border: "1px solid #DDE4DE", background: "#FFF", color: "#556158", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+  chip: { padding: "8px 14px", borderRadius: 20, border: "1px solid #DDE4DE", background: "#FFF", color: "#556158", fontSize: 13, fontWeight: 500, cursor: "pointer" },
   chipOn: { background: "#EAF3EC", borderColor: "#3E7C59", color: "#2F5E45" },
-  primaryBtn: { width: "100%", padding: "13px", borderRadius: 12, border: "none", background: "#3E7C59", color: "#FFF", fontSize: 14, fontWeight: 700, cursor: "pointer" },
-  secondaryBtn: { width: "100%", padding: "12px", borderRadius: 12, border: "1px solid #E5EAE6", background: "#FFF", color: "#6B7280", fontSize: 14, fontWeight: 700, cursor: "pointer" },
-  miniBtn: { background: "none", border: "none", fontSize: 11, color: "#6B7280", cursor: "pointer", padding: "3px 6px", fontWeight: 600 },
+  primaryBtn: { width: "100%", padding: "13px", borderRadius: 12, border: "none", background: "#3E7C59", color: "#FFF", fontSize: 14, fontWeight: 600, cursor: "pointer" },
+  secondaryBtn: { width: "100%", padding: "12px", borderRadius: 12, border: "1px solid #E5EAE6", background: "#FFF", color: "#6B7280", fontSize: 14, fontWeight: 600, cursor: "pointer" },
+  miniBtn: { background: "none", border: "none", fontSize: 11, color: "#6B7280", cursor: "pointer", padding: "3px 6px", fontWeight: 500 },
   iconBtn: { background: "none", border: "none", cursor: "pointer", padding: 5, display: "flex", alignItems: "center", flexShrink: 0 },
   empty: { textAlign: "center", color: "#9AA5A0", fontSize: 13, padding: "36px 0", lineHeight: 1.7 },
   modalBack: { position: "fixed", inset: 0, background: "rgba(31,46,38,.4)", zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center" },
