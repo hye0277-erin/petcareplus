@@ -49,7 +49,7 @@ const nowTime = () => { const d = new Date(); return `${String(d.getHours()).pad
 const daysBetween = (a, b) => Math.round((new Date(b + "T00:00") - new Date(a + "T00:00")) / 86400000);
 const fmtDate = (s) => { const [, m, d] = s.split("-"); return `${parseInt(m)}월 ${parseInt(d)}일`; };
 const fmtShort = (s) => { const [, m, d] = s.split("-"); return `${parseInt(m)}/${parseInt(d)}`; };
-const uid = () => Math.random().toString(36).slice(2, 9);
+const uid = () => (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
 
 /* 한글 조합(IME) 보호 입력: 글자 조합 중에는 React가 입력창 값을 덮어쓰지 않도록 함
    (안드로이드 천지인 등에서 controlled input이 조합을 끊는 문제 해결) */
@@ -980,7 +980,8 @@ export default function App({ onLogout, userEmail } = {}) {
     };
   }, []);
 
-  /* 로그아웃 전에 대기 중인 변경을 저장하고 나감 */
+  /* 로그아웃 전에 대기 중인 변경을 저장하고, 공용 기기에서 다음 사용자에게
+     이전 계정의 사진이 노출되지 않도록 메모리 캐시도 비운 뒤 나감 */
   const handleLogout = onLogout
     ? async () => {
         if (dirtyRef.current && dataRef.current) {
@@ -988,6 +989,8 @@ export default function App({ onLogout, userEmail } = {}) {
           dirtyRef.current = false;
           await saveData(dataRef.current);
         }
+        photoCache.clear();
+        videoHandleCache.clear();
         onLogout();
       }
     : undefined;
@@ -2855,7 +2858,19 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
     e.target.value = "";
   };
 
-  const reset = async () => { setData(DEFAULT_DATA); await saveData(DEFAULT_DATA); setConfirmReset(false); };
+  const reset = async () => {
+    // 본문 초기화만으로는 분리 저장된 사진/PDF가 클라우드에 남으므로 함께 삭제
+    const photoIds = new Set();
+    const pdfIds = new Set();
+    [...(data.records || []), ...(data.vetVisits || [])].forEach((item) =>
+      (item.photos || []).forEach((pid) => { if (typeof pid === "string" && !pid.startsWith("data:")) photoIds.add(pid); }));
+    (data.vetVisits || []).forEach((v) => (v.pdfs || []).forEach((pid) => pdfIds.add(pid)));
+    for (const pid of photoIds) await deletePhotoData(pid);
+    for (const pid of pdfIds) await deletePdfData(pid);
+    setData(DEFAULT_DATA);
+    await saveData(DEFAULT_DATA);
+    setConfirmReset(false);
+  };
 
   const Row = ({ Icon, title, desc, onClick, danger, as, accept, onFile }) => {
     const inner = (
