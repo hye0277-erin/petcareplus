@@ -1259,7 +1259,7 @@ export function StartScreen({ onStart, startLabel }) {
           objectPosition: "35% bottom",
           display: "block",
           zIndex: 1,
-          transform: "scale(1.02)",
+          transform: "scale(1.1)",
         }}
       />
       <style>{`
@@ -1298,7 +1298,7 @@ export function StartScreen({ onStart, startLabel }) {
       </div>
       <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "40px 24px 132px", boxSizing: "border-box" }}>
         <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 64 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 40 }}>
             <img src={logoUrl} alt="" style={{ width: 18, height: 18, borderRadius: 5, display: "block" }} />
             <div style={{ color: "#10231D", fontSize: 15, fontWeight: 700, letterSpacing: 0, lineHeight: 1 }}>
               PetCare<span style={{ color: "#2F6F5E", fontSize: 11, verticalAlign: "super", marginLeft: 1 }}>+</span>
