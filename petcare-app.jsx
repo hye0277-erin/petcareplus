@@ -1125,7 +1125,7 @@ export default function App({ onLogout, userEmail } = {}) {
   );
 
   const alarmBanner = alarmQueue.length > 0 && (
-    <div style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, zIndex: 65, padding: "10px 12px 0" }}>
+    <div style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, zIndex: 65, padding: "max(10px, calc(10px + env(safe-area-inset-top))) 12px 0" }}>
       {alarmQueue.map((r) => (
         <div key={r.id} style={{ ...S.card, display: "flex", alignItems: "center", gap: 10, marginBottom: 6, borderColor: "#E8C9AE", background: "#FDF3EC", boxShadow: "0 4px 14px rgba(31,46,38,.15)" }}>
           <Bell size={18} color="#B0682E" />
@@ -1223,7 +1223,7 @@ function SaveBadge({ state }) {
   const map = { saving: ["저장 중…", "#9AA5A0"], saved: ["저장됨", "#3E7C59"], error: ["저장 실패 · 잠시 후 자동으로 다시 시도해요", "#B65C68"] };
   const [text, color] = map[state];
   return (
-    <div style={{ position: "fixed", top: 10, right: 12, zIndex: 70, fontSize: 11, color, background: "#FFFFFFEE", padding: "4px 10px", borderRadius: 20, boxShadow: "0 1px 4px rgba(0,0,0,.08)", display: "flex", alignItems: "center", gap: 4 }}>
+    <div style={{ position: "fixed", top: "max(10px, calc(10px + env(safe-area-inset-top)))", right: 12, zIndex: 70, fontSize: 11, color, background: "#FFFFFFEE", padding: "4px 10px", borderRadius: 20, boxShadow: "0 1px 4px rgba(0,0,0,.08)", display: "flex", alignItems: "center", gap: 4 }}>
       {state === "saved" && <Check size={12} />}{text}
     </div>
   );
@@ -1406,7 +1406,7 @@ export function StartScreen({ onStart, startLabel }) {
           <div style={{ fontSize: 13, fontWeight: 500, color: "#151A18" }}>92%</div>
         </div>
       </div>
-      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "40px 24px 132px", boxSizing: "border-box" }}>
+      <main style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", padding: "max(40px, calc(40px + env(safe-area-inset-top))) 24px max(132px, calc(132px + env(safe-area-inset-bottom)))", boxSizing: "border-box" }}>
         <div style={{ flexShrink: 0, position: "relative", zIndex: 2, textAlign: "center", top: "1%" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 6, marginBottom: 40 }}>
             <img src={logoUrl} alt="" style={{ width: 24, height: 24, borderRadius: 7, display: "block" }} />
@@ -3399,7 +3399,7 @@ function Modal({ title, children, footer, onClose }) {
 const S = {
   app: { minHeight: "100dvh", background: "#F4F6F2", display: "flex", flexDirection: "column", fontFamily: "'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif", color: "#1F2E26", maxWidth: 480, margin: "0 auto", width: "100%" },
   loading: { minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#F4F6F2" },
-  content: { flex: 1, paddingBottom: 84, overflowY: "auto" },
+  content: { flex: 1, paddingTop: "env(safe-area-inset-top)", paddingBottom: 84, overflowY: "auto" },
   tabbar: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, display: "flex", background: "#FFFFFF", borderTop: "1px solid #E5EAE6", padding: "7px 0 max(10px, env(safe-area-inset-bottom))", zIndex: 40 },
   tabBtn: { flex: 1, background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer", padding: "3px 0" },
   fab: { position: "fixed", right: "max(16px, calc(50% - 224px))", bottom: 86, width: 54, height: 54, borderRadius: "50%", background: "#3E7C59", border: "none", boxShadow: "0 4px 14px rgba(47,94,69,.35)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 45 },
