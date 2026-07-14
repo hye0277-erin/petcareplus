@@ -7,7 +7,7 @@ import {
   Pill, Utensils, Droplets, Syringe, Footprints, ClipboardCheck, StickyNote,
   Check, Download, Upload, Pencil, Trash2, Plus, CalendarClock, Building2, X,
   Star, Wind, Scale, ChevronRight, Activity, Camera, Bell, BellOff,
-  SlidersHorizontal, Share2, ShieldCheck,
+  SlidersHorizontal, Share2, ShieldCheck, MessageSquare,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -3075,6 +3075,16 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
         <p style={{ fontSize: 11, color: "#9AA5A0", marginTop: 10, marginBottom: 0, lineHeight: 1.6 }}>
           기록은 이 기기에 자동 저장돼요. 기기 변경이나 만일에 대비해 백업 파일을 정기적으로 보관하세요.
         </p>
+      </div>
+
+      <div style={{ ...S.card, marginTop: 10 }}>
+        <div style={S.cardTitle}>문의</div>
+        <Row Icon={MessageSquare} title="건의사항 보내기" desc="불편한 점이나 원하는 기능을 이메일로 보내주세요"
+          onClick={() => {
+            const subject = encodeURIComponent("[PetCare+] 건의사항");
+            const body = encodeURIComponent(`아래에 의견을 남겨주세요.\n\n\n---\n${userEmail ? `보낸 사람: ${userEmail}` : ""}`);
+            window.location.href = `mailto:hye0277@gmail.com?subject=${subject}&body=${body}`;
+          }} />
       </div>
 
       {onLogout && (
