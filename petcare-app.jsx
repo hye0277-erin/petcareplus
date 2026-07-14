@@ -1127,7 +1127,15 @@ export default function App({ onLogout, userEmail } = {}) {
   };
 
   const header = (
-    <div style={{ position: "sticky", top: 0, zIndex: 30, background: "#F4F6F2", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "max(14px, calc(14px + env(safe-area-inset-top))) 16px 10px", flexShrink: 0 }}>
+    <div style={{
+      position: "sticky", top: 0, zIndex: 30,
+      background: "rgba(244,246,242,.65)",
+      backdropFilter: "blur(14px) saturate(160%)",
+      WebkitBackdropFilter: "blur(14px) saturate(160%)",
+      borderBottom: "1px solid rgba(255,255,255,.5)",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "max(14px, calc(14px + env(safe-area-inset-top))) 16px 10px", flexShrink: 0,
+    }}>
       <button onClick={scrollToTop} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 17, fontWeight: 700, color: "#1F2E26" }}>{tabLabel}</button>
       <button onClick={toggleAlarm} style={S.iconBtn} aria-label={alarmOn ? "케어 시간 알림 켜짐" : "케어 시간 알림 꺼짐"}>
         {alarmOn ? <Bell size={19} color="#2F5E45" /> : <BellOff size={19} color="#9AA5A0" />}
@@ -1596,6 +1604,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
   const logs = data.checkLogs[date] || {};
   const [detailFor, setDetailFor] = useState(null);
   const [editingRoutine, setEditingRoutine] = useState(null);
+  const [addingRoutine, setAddingRoutine] = useState(false);
   const [currentTime, setCurrentTime] = useState(nowTime());
   // 남은 할일(0) → 지난 할일/건너뜀(1) → 체크 완료(2) 순으로 구분
   const groupOf = (r) => {
@@ -1718,10 +1727,15 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
         </button>
       )}
 
-      <h2 style={{ ...S.h2, marginBottom: 12 }}>오늘의 케어</h2>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <h2 style={S.h2}>오늘의 케어</h2>
+        <button style={{ ...S.chip, display: "flex", alignItems: "center", gap: 4, fontSize: 12 }} onClick={() => setAddingRoutine(true)}>
+          <Plus size={14} /> 루틴 추가
+        </button>
+      </div>
 
       {due.length === 0 && (
-        <div style={S.empty}>아직 루틴이 없어요.<br /><b>설정 → 반복 루틴 관리</b>에서 추가해주세요.</div>
+        <div style={S.empty}>아직 루틴이 없어요.<br />위의 <b>루틴 추가</b> 버튼으로 추가해주세요.</div>
       )}
 
       <div>
@@ -1809,6 +1823,17 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
             setEditingRoutine(null);
           }}
           onClose={() => setEditingRoutine(null)}
+        />
+      )}
+
+      {addingRoutine && (
+        <RoutineEditor
+          routine={null}
+          onSave={(list) => {
+            update((d) => { list.forEach((r) => d.routines.push({ ...r, id: uid(), startDate: todayStr(), active: true })); return d; });
+            setAddingRoutine(false);
+          }}
+          onClose={() => setAddingRoutine(false)}
         />
       )}
     </div>
