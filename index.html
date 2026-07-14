@@ -26,8 +26,10 @@
         min-height: 100vh;
         background: #F4F6F2;
       }
-      .boot-loader img { width: 56px; height: 56px; border-radius: 14px; animation: boot-pulse 1.4s ease-in-out infinite; }
-      .boot-loader span { font-size: 13px; color: #8B9A93; font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+      .boot-loader img { width: 39px; height: 39px; border-radius: 10px; animation: boot-pulse 1.4s ease-in-out infinite; }
+      .boot-loader .boot-brand { font-size: 16px; font-weight: 700; color: #10231D; font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+      .boot-loader .boot-brand span { color: #2F6F5E; font-size: 12px; vertical-align: super; margin-left: 1px; }
+      .boot-loader span.boot-text { font-size: 13px; color: #8B9A93; font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
       @keyframes boot-pulse {
         0%, 100% { transform: scale(1); opacity: 1; }
         50% { transform: scale(0.92); opacity: 0.7; }
@@ -38,7 +40,8 @@
     <div id="root">
       <div class="boot-loader">
         <img src="/images/logo.svg" alt="" />
-        <span>불러오는 중…</span>
+        <div class="boot-brand">PetCare<span>+</span></div>
+        <span class="boot-text">불러오는 중…</span>
       </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>
