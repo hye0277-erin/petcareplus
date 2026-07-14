@@ -1719,7 +1719,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
                 <div style={{ position: "absolute", left: 3, top: 16, width: 11, height: 11, borderRadius: "50%",
                   background: done ? "#3E7C59" : skipped ? "#ADB3AD" : "#FFF",
                   border: done || skipped ? "none" : "2px solid #C9CFCA", zIndex: 1 }} />
-                <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#F5F6F4" : "#FFF", border: skipped ? "1px solid #DFE3DE" : S.card.border }}>
+                <div style={{ ...S.card, background: done ? "#F7FBF8" : skipped ? "#F1F1F1" : "#FFF", border: skipped ? "1px solid #DFE3DE" : S.card.border }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, color: "#9AA5A0" }}>{r.time}</span>
                     {skipped && (
