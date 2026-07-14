@@ -686,11 +686,12 @@ function StoredPdfRow({ pid }) {
   );
 }
 
-function Avatar({ pet, size = 46, light }) {
+function Avatar({ pet, size = 46, light, square }) {
+  const radius = square ? size * 0.27 : "50%";
   if (pet.photo)
-    return <img src={pet.photo} alt={pet.name} style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: light ? "2px solid rgba(255,255,255,.35)" : "2px solid #EAF3EC" }} />;
+    return <img src={pet.photo} alt={pet.name} style={{ width: size, height: size, borderRadius: radius, objectFit: "cover", flexShrink: 0, border: light ? "2px solid rgba(255,255,255,.35)" : "2px solid #EAF3EC" }} />;
   return (
-    <div style={{ width: size, height: size, borderRadius: "50%", background: light ? "rgba(255,255,255,.15)" : "#EAF3EC", color: light ? "#FFF" : "#2F5E45", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 700, flexShrink: 0 }}>
+    <div style={{ width: size, height: size, borderRadius: radius, background: light ? "rgba(255,255,255,.15)" : "#EAF3EC", color: light ? "#FFF" : "#2F5E45", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 700, flexShrink: 0 }}>
       {pet.name[0]}
     </div>
   );
@@ -3004,7 +3005,7 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
       <h2 style={S.h2}>설정</h2>
 
       <button onClick={() => setSection("pet")} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, margin: "12px 0 16px" }}>
-        <Avatar pet={pet} size={44} />
+        <Avatar pet={pet} size={44} square />
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 15 }}>{pet.name}</div>
           <div style={{ fontSize: 12, color: "#6B7280" }}>{[pet.age, pet.breed || pet.species].filter(Boolean).join(" · ")}</div>
