@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import logoUrl from "./images/logo.svg";
 import startDogUrl from "./images/start-dog-wide.webp";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "./src/firebase.js";
 import {
   Sun, ClipboardList, BarChart3, Stethoscope, Settings, PawPrint,
   Pill, Utensils, Droplets, Syringe, Footprints, ClipboardCheck, StickyNote,
@@ -2886,7 +2888,30 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
   const [importMsg, setImportMsg] = useState("");
   const [templateMsg, setTemplateMsg] = useState("");
   const [alarmMsg, setAlarmMsg] = useState("");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackStatus, setFeedbackStatus] = useState("idle"); // idle | sending | sent | error
   const pet = data.pet;
+
+  const sendFeedback = async () => {
+    if (!feedbackText.trim()) return;
+    setFeedbackStatus("sending");
+    try {
+      await addDoc(collection(db, "mail"), {
+        to: ["hana31@naver.com"],
+        message: {
+          subject: "[PetCare+] 건의사항",
+          text: `${feedbackText}\n\n---\n보낸 사람: ${userEmail || "알 수 없음"}`,
+        },
+      });
+      setFeedbackStatus("sent");
+      setFeedbackText("");
+      setTimeout(() => { setFeedbackOpen(false); setFeedbackStatus("idle"); }, 1200);
+    } catch (e) {
+      console.error(e);
+      setFeedbackStatus("error");
+    }
+  };
 
   const addTemplate = (t) => {
     update((d) => { d.routines.push(...TEMPLATES[t].map((r) => ({ ...r, id: uid(), startDate: todayStr(), active: true }))); return d; });
@@ -3079,12 +3104,8 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
 
       <div style={{ ...S.card, marginTop: 10 }}>
         <div style={S.cardTitle}>문의</div>
-        <Row Icon={MessageSquare} title="건의사항 보내기" desc="불편한 점이나 원하는 기능을 이메일로 보내주세요"
-          onClick={() => {
-            const subject = encodeURIComponent("[PetCare+] 건의사항");
-            const body = encodeURIComponent(`아래에 의견을 남겨주세요.\n\n\n---\n${userEmail ? `보낸 사람: ${userEmail}` : ""}`);
-            window.location.href = `mailto:hye0277@gmail.com?subject=${subject}&body=${body}`;
-          }} />
+        <Row Icon={MessageSquare} title="건의사항 보내기" desc="불편한 점이나 원하는 기능을 적어서 보내주세요"
+          onClick={() => { setFeedbackText(""); setFeedbackStatus("idle"); setFeedbackOpen(true); }} />
       </div>
 
       {onLogout && (
@@ -3125,6 +3146,27 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
           <p style={{ fontSize: 13, color: "#8E3B47", margin: 0, fontWeight: 600, lineHeight: 1.6 }}>
             모든 기록이 삭제되고 처음 화면으로 돌아가요. 되돌릴 수 없어요.<br />초기화 전에 백업 파일을 먼저 내려받는 것을 권장해요.
           </p>
+        </Modal>
+      )}
+      {feedbackOpen && (
+        <Modal title="건의사항 보내기" onClose={() => setFeedbackOpen(false)}
+          footer={
+            <button style={S.primaryBtn} disabled={feedbackStatus === "sending" || feedbackStatus === "sent" || !feedbackText.trim()}
+              onClick={sendFeedback}>
+              {feedbackStatus === "sending" ? "보내는 중…" : feedbackStatus === "sent" ? "보냈어요" : "보내기"}
+            </button>
+          }>
+          <KTextarea style={{ ...S.input, minHeight: 140, resize: "vertical", fontFamily: "inherit" }}
+            value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder="불편한 점이나 원하는 기능을 자유롭게 적어주세요" />
+          {feedbackStatus === "sent" && (
+            <div style={{ fontSize: 12, color: "#3E7C59", marginTop: 8, display: "flex", alignItems: "center", gap: 4 }}>
+              <Check size={13} />의견을 보냈어요. 감사합니다!
+            </div>
+          )}
+          {feedbackStatus === "error" && (
+            <p style={{ fontSize: 12, color: "#B65C68", marginTop: 8 }}>전송에 실패했어요. 잠시 후 다시 시도해주세요.</p>
+          )}
         </Modal>
       )}
     </div>
