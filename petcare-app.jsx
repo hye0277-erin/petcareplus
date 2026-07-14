@@ -905,6 +905,7 @@ export default function App({ onLogout, userEmail } = {}) {
   const [saveState, setSaveState] = useState("idle");
   const [quickOpen, setQuickOpen] = useState(false);
   const saveTimer = useRef(null);
+  const contentRef = useRef(null);
   const loaded = useRef(false);
   const [loadError, setLoadError] = useState(false);
   const [loadRetry, setLoadRetry] = useState(0);
@@ -1117,6 +1118,22 @@ export default function App({ onLogout, userEmail } = {}) {
     ["settings", "설정", Settings],
   ];
   const showFab = tab === "today" || tab === "log";
+  const tabLabel = TABS.find(([k]) => k === tab)?.[1] || "";
+  const alarmOn = data.settings?.alarmEnabled !== false;
+  const toggleAlarm = () => update((d) => { d.settings = { ...(d.settings || {}), alarmEnabled: !alarmOn }; return d; });
+  const scrollToTop = () => {
+    contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const header = (
+    <div style={{ position: "sticky", top: 0, zIndex: 30, background: "#F4F6F2", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "max(14px, calc(14px + env(safe-area-inset-top))) 16px 10px", flexShrink: 0 }}>
+      <button onClick={scrollToTop} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 17, fontWeight: 700, color: "#1F2E26" }}>{tabLabel}</button>
+      <button onClick={toggleAlarm} style={S.iconBtn} aria-label={alarmOn ? "케어 시간 알림 켜짐" : "케어 시간 알림 꺼짐"}>
+        {alarmOn ? <Bell size={19} color="#2F5E45" /> : <BellOff size={19} color="#9AA5A0" />}
+      </button>
+    </div>
+  );
 
   const views = (
     <>
@@ -1181,7 +1198,14 @@ export default function App({ onLogout, userEmail } = {}) {
           </div>
         </aside>
         <main style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ maxWidth: 780, margin: "0 auto", padding: "10px 28px 48px" }}>{views}</div>
+          <div style={{ maxWidth: 780, margin: "0 auto", padding: "10px 28px 48px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button onClick={toggleAlarm} style={S.iconBtn} aria-label={alarmOn ? "케어 시간 알림 켜짐" : "케어 시간 알림 꺼짐"}>
+                {alarmOn ? <Bell size={19} color="#2F5E45" /> : <BellOff size={19} color="#9AA5A0" />}
+              </button>
+            </div>
+            {views}
+          </div>
         </main>
         {showFab && (
           <button style={{ ...S.fab, right: 32, bottom: 32 }} onClick={() => setQuickOpen(true)} aria-label="빠른 기록">
@@ -1198,7 +1222,8 @@ export default function App({ onLogout, userEmail } = {}) {
     <div style={S.app}>
       <SaveBadge state={saveState} />
       {alarmBanner}
-      <div style={S.content}>{views}</div>
+      {header}
+      <div ref={contentRef} style={S.content}>{views}</div>
 
       {showFab && (
         <button style={S.fab} onClick={() => setQuickOpen(true)} aria-label="빠른 기록">
@@ -1862,8 +1887,7 @@ function LogView({ data, update }) {
 
   return (
     <div style={{ padding: "20px 16px" }}>
-      <h2 style={S.h2}>기록</h2>
-      <p style={{ fontSize: 12, color: "#6B7280", margin: "4px 0 12px" }}>완료한 케어와 직접 남긴 기록이 쌓이는 곳이에요.</p>
+      <p style={{ fontSize: 12, color: "#6B7280", margin: "0 0 12px" }}>완료한 케어와 직접 남긴 기록이 쌓이는 곳이에요.</p>
 
       {/* 오늘 요약 */}
       <div style={S.card}>
@@ -2234,8 +2258,7 @@ function ReportView({ data }) {
 
   return (
     <div style={{ padding: "20px 16px" }}>
-      <h2 style={S.h2}>리포트</h2>
-      <p style={{ fontSize: 12, color: "#6B7280", margin: "4px 0 12px" }}>{data.pet.name}의 최근 건강 기록을 요약했어요.</p>
+      <p style={{ fontSize: 12, color: "#6B7280", margin: "0 0 12px" }}>{data.pet.name}의 최근 건강 기록을 요약했어요.</p>
       <div style={{ display: "flex", gap: 6, marginBottom: useCustom ? 10 : 14, flexWrap: "wrap" }}>
         {[7, 14, 30].map((d) => (
           <button key={d} style={{ ...S.chip, ...(!useCustom && days === d ? S.chipOn : {}) }} onClick={() => { setUseCustom(false); setDays(d); }}>최근 {d}일</button>
@@ -2600,8 +2623,7 @@ function HospitalView({ data, update }) {
 
   return (
     <div style={{ padding: "20px 16px" }}>
-      <h2 style={S.h2}>병원 진료</h2>
-      <p style={{ fontSize: 12, color: "#6B7280", margin: "4px 0 12px" }}>{data.pet.name}의 진료 예정과 다녀온 기록을 모아봤어요.</p>
+      <p style={{ fontSize: 12, color: "#6B7280", margin: "0 0 12px" }}>{data.pet.name}의 진료 예정과 다녀온 기록을 모아봤어요.</p>
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
         <h3 style={S.h3}>다음 진료 예정</h3>
@@ -3002,8 +3024,6 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
 
   return (
     <div style={{ padding: "20px 16px" }}>
-      <h2 style={S.h2}>설정</h2>
-
       <button onClick={() => setSection("pet")} style={{ ...S.card, width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, margin: "12px 0 16px" }}>
         <Avatar pet={pet} size={44} square />
         <div style={{ flex: 1 }}>
