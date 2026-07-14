@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import logoUrl from "./images/logo.svg";
 import startDogUrl from "./images/start-dog-wide.webp";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore";
 import { db } from "./src/firebase.js";
 import {
   Sun, ClipboardList, BarChart3, Stethoscope, Settings, PawPrint,
@@ -32,6 +32,7 @@ if (typeof window !== "undefined") {
    신규 저장은 전부 window.structuredStorage.saveDiff()로 이루어진다.
    ───────────────────────────────────────────── */
 const STORE_KEY = "petcare-v2";
+const ADMIN_EMAIL = "hye0277@gmail.com";
 
 /* 주의: "저장된 데이터 없음"(null 반환)과 "읽기 실패"(예외)를 구분해야 함.
    실패를 null로 처리하면 기본값으로 시작한 뒤 기존 클라우드 데이터를 덮어쓸 수 있다. */
@@ -2891,18 +2892,18 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("idle"); // idle | sending | sent | error
+  const [inboxOpen, setInboxOpen] = useState(false);
+  const isAdmin = userEmail === ADMIN_EMAIL;
   const pet = data.pet;
 
   const sendFeedback = async () => {
     if (!feedbackText.trim()) return;
     setFeedbackStatus("sending");
     try {
-      await addDoc(collection(db, "mail"), {
-        to: ["hana31@naver.com"],
-        message: {
-          subject: "[PetCare+] 건의사항",
-          text: `${feedbackText}\n\n---\n보낸 사람: ${userEmail || "알 수 없음"}`,
-        },
+      await addDoc(collection(db, "feedback"), {
+        text: feedbackText.trim(),
+        email: userEmail || null,
+        createdAt: serverTimestamp(),
       });
       setFeedbackStatus("sent");
       setFeedbackText("");
@@ -3106,6 +3107,10 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
         <div style={S.cardTitle}>문의</div>
         <Row Icon={MessageSquare} title="건의사항 보내기" desc="불편한 점이나 원하는 기능을 적어서 보내주세요"
           onClick={() => { setFeedbackText(""); setFeedbackStatus("idle"); setFeedbackOpen(true); }} />
+        {isAdmin && (
+          <Row Icon={ClipboardList} title="건의사항함" desc="사용자들이 보낸 건의사항 모아보기 (관리자 전용)"
+            onClick={() => setInboxOpen(true)} />
+        )}
       </div>
 
       {onLogout && (
@@ -3169,7 +3174,41 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
           )}
         </Modal>
       )}
+      {inboxOpen && <FeedbackInbox onClose={() => setInboxOpen(false)} />}
     </div>
+  );
+}
+
+function FeedbackInbox({ onClose }) {
+  const [items, setItems] = useState(null); // null: 불러오는 중
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const snap = await getDocs(query(collection(db, "feedback"), orderBy("createdAt", "desc")));
+        setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      } catch (e) {
+        console.error(e);
+        setError(true);
+      }
+    })();
+  }, []);
+
+  return (
+    <Modal title="건의사항함" onClose={onClose}>
+      {error && <p style={{ fontSize: 13, color: "#B65C68" }}>불러오지 못했어요. 잠시 후 다시 시도해주세요.</p>}
+      {!error && items === null && <p style={{ fontSize: 13, color: "#9AA5A0" }}>불러오는 중…</p>}
+      {!error && items?.length === 0 && <p style={{ fontSize: 13, color: "#9AA5A0" }}>아직 도착한 건의사항이 없어요.</p>}
+      {items?.map((it) => (
+        <div key={it.id} style={{ ...S.card, marginBottom: 8 }}>
+          <p style={{ margin: 0, fontSize: 13.5, color: "#1F2E26", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{it.text}</p>
+          <div style={{ marginTop: 8, fontSize: 11, color: "#9AA5A0" }}>
+            {it.email || "익명"} · {it.createdAt?.toDate ? it.createdAt.toDate().toLocaleString("ko-KR") : "시간 정보 없음"}
+          </div>
+        </div>
+      ))}
+    </Modal>
   );
 }
 
