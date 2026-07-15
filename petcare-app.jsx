@@ -75,79 +75,15 @@ function KInput({ value, onChange, ...props }) {
   );
 }
 
-/* 연도를 바로 고를 수 있는 년/월/일 드롭다운 날짜 선택기 (달력을 여러 번 넘길 필요 없음) */
-/* 오전/오후·시·분을 각각 따로 고르는 시간 선택기 (하나 고르면 다른 항목으로 자동 이동하지 않음) */
-function KTimeSelect({ value, onChange }) {
-  const [hh, mm] = (value || "09:00").split(":").map(Number);
-  const period = hh < 12 ? "오전" : "오후";
-  const hour12 = hh % 12 === 0 ? 12 : hh % 12;
-
-  const toValue = (per, h12, minute) => {
-    let h24 = h12 % 12;
-    if (per === "오후") h24 += 12;
-    return `${String(h24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-  };
-
-  const selStyle = { ...S.input, marginBottom: 0, padding: "11px 4px", textAlign: "center" };
+/* 시:분을 시계 형태의 네이티브 피커로 고르는 시간 선택기 (셀렉트 박스 없이 시간까지 직접 선택) */
+function KTimeInput({ value, onChange }) {
   return (
-    <div style={{ display: "flex", gap: 6 }}>
-      <select style={{ ...selStyle, flex: 1 }} value={period} onChange={(e) => onChange(toValue(e.target.value, hour12, mm))}>
-        <option value="오전">오전</option>
-        <option value="오후">오후</option>
-      </select>
-      <select style={{ ...selStyle, flex: 1 }} value={hour12} onChange={(e) => onChange(toValue(period, parseInt(e.target.value, 10), mm))}>
-        {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => <option key={h} value={h}>{h}시</option>)}
-      </select>
-      <select style={{ ...selStyle, flex: 1 }} value={mm} onChange={(e) => onChange(toValue(period, hour12, parseInt(e.target.value, 10)))}>
-        {Array.from({ length: 60 }, (_, i) => i).map((m) => <option key={m} value={m}>{String(m).padStart(2, "0")}분</option>)}
-      </select>
-    </div>
-  );
-}
-
-/* 년/월/일 셀렉트 박스 방식 날짜 선택기 (달력 대신 목록에서 바로 고르는 방식) */
-function KDateSelect({ value, onChange, min, max }) {
-  const [open, setOpen] = useState(false);
-  const base = value || todayStr();
-  const [y, m, d] = base.split("-").map(Number);
-  const minY = min ? parseInt(min.split("-")[0], 10) : y - 25;
-  const maxY = max ? parseInt(max.split("-")[0], 10) : y + 5;
-  const years = [];
-  for (let yy = maxY; yy >= minY; yy--) years.push(yy);
-  const daysInMonth = new Date(y, m, 0).getDate();
-
-  const clamp = (yy, mm, dd) => {
-    const dim = new Date(yy, mm, 0).getDate();
-    let s = `${yy}-${String(mm).padStart(2, "0")}-${String(Math.min(dd, dim)).padStart(2, "0")}`;
-    if (min && s < min) s = min;
-    if (max && s > max) s = max;
-    return s;
-  };
-
-  if (!open) {
-    return (
-      <button type="button" onClick={() => setOpen(true)}
-        style={{ ...S.input, marginBottom: 0, width: "100%", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", background: "#FFF" }}>
-        <span style={{ fontWeight: 500, color: "#1F2E26" }}>{y}년 {m}월 {d}일</span>
-        <Pencil size={14} color="#9AA5A0" />
-      </button>
-    );
-  }
-
-  const selStyle = { ...S.input, marginBottom: 0, padding: "11px 6px", textAlign: "center" };
-  return (
-    <div style={{ display: "flex", gap: 6 }}>
-      <select style={{ ...selStyle, flex: 1.3 }} value={y} onChange={(e) => onChange(clamp(parseInt(e.target.value, 10), m, d))}>
-        {years.map((yy) => <option key={yy} value={yy}>{yy}년</option>)}
-      </select>
-      <select style={{ ...selStyle, flex: 1 }} value={m} onChange={(e) => onChange(clamp(y, parseInt(e.target.value, 10), d))}>
-        {Array.from({ length: 12 }, (_, i) => i + 1).map((mm) => <option key={mm} value={mm}>{mm}월</option>)}
-      </select>
-      <select style={{ ...selStyle, flex: 1 }} value={d} onChange={(e) => onChange(clamp(y, m, parseInt(e.target.value, 10)))}>
-        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((dd) => <option key={dd} value={dd}>{dd}일</option>)}
-      </select>
-      <button type="button" onClick={() => setOpen(false)} style={{ ...S.chip, flexShrink: 0, padding: "0 12px" }}>완료</button>
-    </div>
+    <input
+      type="time"
+      style={{ ...S.input, marginBottom: 0, width: "100%", boxSizing: "border-box", textAlign: "center", fontWeight: 500 }}
+      value={value || "09:00"}
+      onChange={(e) => e.target.value && onChange(e.target.value)}
+    />
   );
 }
 
@@ -1368,14 +1304,10 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
           )}
           <label style={S.label}>일시 (지난 날짜도 기록할 수 있어요)</label>
           <div style={{ marginBottom: 10 }}>
-            {cat === "symptom" ? (
-              <KCalendar value={date} max={todayStr()} onChange={setDate} />
-            ) : (
-              <KDateSelect value={date} max={todayStr()} onChange={setDate} />
-            )}
+            <KCalendar value={date} max={todayStr()} onChange={setDate} />
           </div>
           <div style={{ marginBottom: 14 }}>
-            <KTimeSelect value={time} onChange={setTime} />
+            <KTimeInput value={time} onChange={setTime} />
           </div>
           <label style={S.label}>{cat === "memo" ? <>내용<RequiredMark /></> : "메모 (선택)"}</label>
           <KTextarea style={{ ...S.input, minHeight: 60, resize: "vertical", fontFamily: "inherit" }} value={memo} onChange={(e) => setMemo(e.target.value)}
@@ -1988,10 +1920,10 @@ function LogView({ data, update }) {
           {pickedStart && (
             <div style={{ ...S.card, background: "#F7F9F6", marginBottom: 16, padding: "10px 12px" }}>
               <div style={{ fontSize: 11, color: "#9AA5A0", marginBottom: 4 }}>시작일</div>
-              <KDateSelect value={pickedStart} max={pickedEnd || todayStr()}
+              <KCalendar value={pickedStart} max={pickedEnd || todayStr()}
                 onChange={(v) => { setPickedStart(v); if (pickedEnd < v) setPickedEnd(v); }} />
               <div style={{ fontSize: 11, color: "#9AA5A0", margin: "10px 0 4px" }}>종료일</div>
-              <KDateSelect value={pickedEnd} max={todayStr()}
+              <KCalendar value={pickedEnd} max={todayStr()}
                 onChange={(v) => { setPickedEnd(v); if (v < pickedStart) setPickedStart(v); }} />
               <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
                 {(() => {
@@ -2293,9 +2225,9 @@ function ReportView({ data }) {
       {useCustom && (
         <div style={{ ...S.card, marginBottom: 14 }}>
           <div style={{ fontSize: 11, color: "#9AA5A0", marginBottom: 4 }}>시작일</div>
-          <KDateSelect value={customStart} max={todayReal} onChange={setCustomStart} />
+          <KCalendar value={customStart} max={todayReal} onChange={setCustomStart} />
           <div style={{ fontSize: 11, color: "#9AA5A0", margin: "10px 0 4px" }}>종료일</div>
-          <KDateSelect value={customEnd} max={todayReal} onChange={setCustomEnd} />
+          <KCalendar value={customEnd} max={todayReal} onChange={setCustomEnd} />
         </div>
       )}
 
@@ -2795,11 +2727,11 @@ function NextVisitEditor({ current, onSave, onClose }) {
       }>
       <label style={S.label}>날짜<RequiredMark /></label>
       <div style={{ marginBottom: 10 }}>
-        <KDateSelect value={date} min={todayStr()} onChange={setDate} />
+        <KCalendar value={date} min={todayStr()} onChange={setDate} />
       </div>
       <label style={S.label}>시간 (선택)</label>
       <div style={{ marginBottom: isPastTime ? 6 : 14 }}>
-        <KTimeSelect value={time} onChange={setTime} />
+        <KTimeInput value={time} onChange={setTime} />
       </div>
       {isPastTime && (
         <div style={{ fontSize: 11.5, color: "#B0682E", margin: "-8px 0 12px" }}>
@@ -2875,7 +2807,7 @@ function VisitEditor({ visit, defaultHospital, onSave, onDelete, onClose }) {
       }>
       <label style={S.label}>진료일<RequiredMark /></label>
       <div style={{ marginBottom: 6 }}>
-        <KDateSelect value={date} max={todayStr()} onChange={setDate} />
+        <KCalendar value={date} max={todayStr()} onChange={setDate} />
       </div>
       {date > todayStr() && (
         <div style={{ fontSize: 11.5, color: "#B0682E", margin: "-8px 0 12px" }}>
@@ -2910,11 +2842,11 @@ function VisitEditor({ visit, defaultHospital, onSave, onDelete, onClose }) {
             <>
               <label style={S.label}>다음 진료일</label>
               <div style={{ marginBottom: 10 }}>
-                <KDateSelect value={nextDate} min={todayStr()} onChange={setNextDate} />
+                <KCalendar value={nextDate} min={todayStr()} onChange={setNextDate} />
               </div>
               <label style={S.label}>시간 (선택)</label>
               <div style={{ marginBottom: nextIsPastTime ? 6 : 14 }}>
-                <KTimeSelect value={nextTime} onChange={setNextTime} />
+                <KTimeInput value={nextTime} onChange={setNextTime} />
               </div>
             </>
           )}
@@ -3486,7 +3418,7 @@ function RoutineEditor({ routine, onSave, onDelete, onClose }) {
       <KInput style={S.input} value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="예: 1/4정, 30g" />
       <label style={S.label}>시간</label>
       <div style={{ marginBottom: 14 }}>
-        <KTimeSelect value={time} onChange={setTime} />
+        <KTimeInput value={time} onChange={setTime} />
       </div>
       <label style={S.label}>반복<RequiredMark /></label>
       <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
