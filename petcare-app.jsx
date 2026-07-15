@@ -1324,6 +1324,7 @@ function RequiredMark() {
 }
 
 export function StartScreen({ onStart, startLabel }) {
+  const { ready, installed, install } = useInstallPrompt();
   return (
     <div style={{ ...S.app, height: "100dvh", minHeight: "100dvh", position: "relative", overflow: "hidden", background: "#F2F3EB" }}>
       <img
@@ -1392,6 +1393,12 @@ export function StartScreen({ onStart, startLabel }) {
           <p style={{ margin: "10px 0 0", color: "#3D3D3D", fontSize: 15, lineHeight: 1.45, fontWeight: 500, letterSpacing: 0 }}>
             매일 케어부터 진료 기록까지,<br /><span style={{ color: "#FF6600" }}>PetCare+</span>가 함께할게요.
           </p>
+          {ready && !installed && (
+            <button type="button" onClick={install}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid #FFF", color: "#2F6F5E", fontSize: 12.5, fontWeight: 600, padding: "8px 14px", borderRadius: 20, marginTop: 16, cursor: "pointer" }}>
+              <Download size={13} />앱처럼 홈 화면에 설치하기
+            </button>
+          )}
         </div>
       </main>
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 4, zIndex: 3, padding: "16px 16px max(22px, env(safe-area-inset-bottom))" }}>
@@ -3190,7 +3197,8 @@ function FeedbackInbox({ onClose }) {
   );
 }
 
-function InstallAppRow() {
+/* 홈 화면 설치(PWA) 상태/실행 로직 — 설정 화면과 시작 화면에서 공유 */
+function useInstallPrompt() {
   const [ready, setReady] = useState(typeof window !== "undefined" && !!deferredInstallPrompt);
   const [installed, setInstalled] = useState(
     typeof window !== "undefined" &&
@@ -3208,6 +3216,20 @@ function InstallAppRow() {
     };
   }, []);
 
+  const install = async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    setReady(false);
+    if (outcome === "accepted") setInstalled(true);
+  };
+
+  return { ready, installed, install };
+}
+
+function InstallAppRow() {
+  const { ready, installed, install } = useInstallPrompt();
   const rowStyle = { width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, padding: "13px 2px", borderBottom: "1px solid #F0F3F0", textAlign: "left" };
 
   if (installed) {
@@ -3222,17 +3244,8 @@ function InstallAppRow() {
     );
   }
 
-  const handleInstall = async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    const { outcome } = await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    setReady(false);
-    if (outcome === "accepted") setInstalled(true);
-  };
-
   return (
-    <button onClick={handleInstall} disabled={!ready} style={{ ...rowStyle, cursor: ready ? "pointer" : "default", opacity: ready ? 1 : 0.5 }}>
+    <button onClick={install} disabled={!ready} style={{ ...rowStyle, cursor: ready ? "pointer" : "default", opacity: ready ? 1 : 0.5 }}>
       <Download size={18} color="#3E7C59" />
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: "#1F2E26" }}>홈 화면에 설치</div>
