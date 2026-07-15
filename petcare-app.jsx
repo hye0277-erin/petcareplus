@@ -1234,7 +1234,7 @@ function QuickRecordSheet({ petName, onSave, onClose, initial }) {
     const ids = await persistPhotoItems(photos, originalIds);
     onSave({ cat, value: numeric ? parseFloat(value) : String(value), memo: memo.trim(), photos: ids, date, time }, keepOpen);
   };
-  const resetToGrid = () => { setCat(null); setValue(""); setMemo(""); setPhotos([]); setTime(nowTime()); };
+  const resetToGrid = () => { setCat(null); setValue(""); setMemo(""); setPhotos([]); setTime(nowTime()); setDate(todayStr()); };
 
   return (
     <Modal title={cat ? `${meta.label} 기록${isEdit ? " 수정" : ""}` : "무엇을 기록할까요?"} onClose={onClose}
@@ -1585,7 +1585,7 @@ function TodayView({ data, update, goHospital, goSettings, goReport }) {
   }, []);
 
   useEffect(() => {
-    const overdue = due.filter((r) => !logs[r.id]?.status && detailFor !== r.id && minutesDiff(r.time, currentTime) > 30);
+    const overdue = due.filter((r) => !logs[r.id]?.status && detailFor !== r.id && minutesDiff(r.time, currentTime) > 60);
     if (overdue.length === 0) return;
     update((d) => {
       d.checkLogs[date] = d.checkLogs[date] || {};
@@ -2008,9 +2008,7 @@ function LogView({ data, update }) {
                   <button style={S.iconBtn} onClick={() => update((d) => { const t = d.records.find((x) => x.id === r.id); t.star = !t.star; return d; })}>
                     <Star size={15} color={r.star ? "#C9A227" : "#C9CFCA"} fill={r.star ? "#C9A227" : "none"} />
                   </button>
-                  <button style={S.iconBtn} onClick={() => { (r.photos || []).forEach(deletePhotoData); update((d) => { d.records = d.records.filter((x) => x.id !== r.id); return d; }); }}>
-                    <Trash2 size={14} color="#B65C68" />
-                  </button>
+                  <ConfirmDeleteIcon onConfirm={() => { (r.photos || []).forEach(deletePhotoData); update((d) => { d.records = d.records.filter((x) => x.id !== r.id); return d; }); }} />
                 </div>
                 {r.photos?.length > 0 && (
                   <div style={{ display: "flex", gap: 6, marginTop: 8, marginLeft: 42 }}>
@@ -2728,7 +2726,7 @@ function NextVisitEditor({ current, onSave, onClose }) {
             onClick={() => onSave({ date, time, hospital: hospital.trim(), purpose: purpose.trim() })}>저장</button>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button style={S.secondaryBtn} onClick={onClose}>취소</button>
-            {current && <button style={{ ...S.secondaryBtn, color: "#B65C68", borderColor: "#E9CDD1" }} onClick={() => onSave(null)}>이 예정 삭제</button>}
+            {current && <ConfirmDeleteButton onConfirm={() => onSave(null)} label="이 예정 삭제" />}
           </div>
         </>
       }>
@@ -2808,7 +2806,7 @@ function VisitEditor({ visit, defaultHospital, onSave, onDelete, onClose }) {
           {saveError && <div style={{ fontSize: 11.5, color: "#B65C68", textAlign: "center", marginTop: 6 }}>{saveError}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button style={S.secondaryBtn} onClick={onClose}>취소</button>
-            {onDelete && <button style={{ ...S.secondaryBtn, color: "#B65C68", borderColor: "#E9CDD1" }} onClick={onDelete}>삭제</button>}
+            {onDelete && <ConfirmDeleteButton onConfirm={onDelete} />}
           </div>
         </>
       }>
@@ -2874,6 +2872,7 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
   const [editing, setEditing] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [importMsg, setImportMsg] = useState("");
+  const [pendingImport, setPendingImport] = useState(null);
   const [templateMsg, setTemplateMsg] = useState("");
   const [alarmMsg, setAlarmMsg] = useState("");
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -2908,7 +2907,7 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
   };
 
   const exportBackup = async () => {
-    // 분리 저장된 사진도 함께 담아 완전한 백업 생성
+    // 분리 저장된 사진·PDF도 함께 담아 완전한 백업 생성
     const ids = new Set();
     [...(data.records || []), ...(data.vetVisits || [])].forEach((item) =>
       (item.photos || []).forEach((pid) => { if (typeof pid === "string" && !pid.startsWith("data:")) ids.add(pid); }));
@@ -2917,35 +2916,49 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
       const src = await loadPhotoData(pid);
       if (src) photos[pid] = src;
     }
-    const blob = new Blob([JSON.stringify({ version: 4, exportedAt: new Date().toISOString(), data, photos }, null, 2)], { type: "application/json" });
+    const pdfIds = new Set();
+    (data.vetVisits || []).forEach((v) => (v.pdfs || []).forEach((pid) => pdfIds.add(pid)));
+    const pdfs = {};
+    for (const pid of pdfIds) {
+      const meta = await loadPdfData(pid);
+      if (meta) pdfs[pid] = meta;
+    }
+    const blob = new Blob([JSON.stringify({ version: 4, exportedAt: new Date().toISOString(), data, photos, pdfs }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = `PetCare+_백업_${todayStr()}.json`; a.click();
     URL.revokeObjectURL(url);
   };
 
+  /* 파일을 고르면 바로 덮어쓰지 않고 먼저 읽어서 확인 모달(pendingImport)에 띄운 뒤, 사용자가 확정해야 실제로 교체함 */
   const importBackup = (e) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = async () => {
+    reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result);
         const merged = migrate(parsed.data || parsed);
         if (!merged?.pet && !merged?.routines?.length) throw new Error("형식 오류");
-        // 백업에 담긴 사진들을 분리 키로 복원
-        if (parsed.photos) {
-          for (const [pid, src] of Object.entries(parsed.photos)) await savePhotoData(pid, src);
-        }
-        setData(merged);
-        setImportMsg("백업을 불러왔어요");
+        setPendingImport({ merged, photos: parsed.photos || null, pdfs: parsed.pdfs || null, exportedAt: parsed.exportedAt || null });
       } catch {
         setImportMsg("파일을 읽을 수 없어요. 이 앱에서 내보낸 백업 파일인지 확인해주세요.");
+        setTimeout(() => setImportMsg(""), 4000);
       }
-      setTimeout(() => setImportMsg(""), 4000);
     };
     reader.readAsText(file);
-    e.target.value = "";
+  };
+
+  const confirmImportBackup = async () => {
+    if (!pendingImport) return;
+    const { merged, photos, pdfs } = pendingImport;
+    if (photos) for (const [pid, src] of Object.entries(photos)) await savePhotoData(pid, src);
+    if (pdfs) for (const [pid, meta] of Object.entries(pdfs)) await savePdfData(pid, meta);
+    setData(merged);
+    setPendingImport(null);
+    setImportMsg("백업을 불러왔어요");
+    setTimeout(() => setImportMsg(""), 4000);
   };
 
   const reset = async () => {
@@ -3124,6 +3137,24 @@ function SettingsView({ data, update, setData, onLogout, userEmail }) {
           }}
           onDelete={editing !== "new" ? () => { update((d) => { d.routines = d.routines.filter((x) => x.id !== editing.id); return d; }); setEditing(null); } : null}
           onClose={() => setEditing(null)} />
+      )}
+      {pendingImport && (
+        <Modal title="백업 불러오기" onClose={() => setPendingImport(null)}
+          footer={
+            <>
+              <button style={{ ...S.primaryBtn, background: "#B65C68" }} onClick={confirmImportBackup}>현재 기록을 백업으로 교체</button>
+              <button style={{ ...S.secondaryBtn, marginTop: 8 }} onClick={() => setPendingImport(null)}>취소</button>
+            </>
+          }>
+          <p style={{ fontSize: 13, color: "#8E3B47", margin: 0, fontWeight: 600, lineHeight: 1.6 }}>
+            지금 앱에 있는 기록이 이 백업 파일 내용으로 완전히 교체돼요. 되돌릴 수 없어요.
+          </p>
+          {pendingImport.exportedAt && (
+            <p style={{ fontSize: 12, color: "#9AA5A0", margin: "8px 0 0" }}>
+              백업 생성 시각: {new Date(pendingImport.exportedAt).toLocaleString("ko-KR")}
+            </p>
+          )}
+        </Modal>
       )}
       {confirmReset && (
         <Modal title="전체 데이터 초기화" onClose={() => setConfirmReset(false)}
@@ -3401,7 +3432,7 @@ function RoutineEditor({ routine, onSave, onDelete, onClose }) {
             )}
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
               <button style={S.secondaryBtn} onClick={onClose}>취소</button>
-              {onDelete && <button style={{ ...S.secondaryBtn, color: "#B65C68", borderColor: "#E9CDD1" }} onClick={onDelete}>삭제</button>}
+              {onDelete && <ConfirmDeleteButton onConfirm={onDelete} />}
             </div>
           </>
         ) : (
@@ -3460,12 +3491,13 @@ function RoutineEditor({ routine, onSave, onDelete, onClose }) {
   );
 }
 
+/* 배경(백드롭) 탭으로는 닫히지 않음 — 입력 중인 폼을 실수로 탭해 통째로 잃는 것을 방지 (X 버튼·취소 버튼으로만 닫힘) */
 function Modal({ title, children, footer, onClose }) {
   const desktop = useIsDesktop();
   return (
-    <div style={{ ...S.modalBack, alignItems: desktop ? "center" : "flex-end", padding: desktop ? 24 : 0 }} onClick={onClose}>
+    <div style={{ ...S.modalBack, alignItems: desktop ? "center" : "flex-end", padding: desktop ? 24 : 0 }}>
       <style>{`.modal-scroll::-webkit-scrollbar{display:none;}`}</style>
-      <div style={{ ...S.modal, display: "flex", flexDirection: "column", borderRadius: desktop ? 18 : "18px 18px 0 0", maxHeight: desktop ? "86vh" : "88vh" }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ ...S.modal, display: "flex", flexDirection: "column", borderRadius: desktop ? 18 : "18px 18px 0 0", maxHeight: desktop ? "86vh" : "88vh" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexShrink: 0 }}>
           <h3 style={{ margin: 0, fontSize: 17, color: "#1F2E26" }}>{title}</h3>
           <button style={S.iconBtn} onClick={onClose}><X size={18} color="#6B7280" /></button>
@@ -3474,6 +3506,40 @@ function Modal({ title, children, footer, onClose }) {
         {footer && <div style={{ flexShrink: 0, paddingTop: 12, borderTop: "1px solid #F0F3F0", marginTop: 6 }}>{footer}</div>}
       </div>
     </div>
+  );
+}
+
+/* 삭제 버튼: 한 번 누르면 "정말 삭제할까요?"로 바뀌고, 3초 안에 다시 눌러야 실제 삭제됨 (모달 없이 바로 확인) */
+function ConfirmDeleteButton({ onConfirm, label = "삭제", style }) {
+  const [confirming, setConfirming] = useState(false);
+  const timerRef = useRef(null);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
+  const handleClick = () => {
+    if (confirming) { clearTimeout(timerRef.current); setConfirming(false); onConfirm(); }
+    else { setConfirming(true); timerRef.current = setTimeout(() => setConfirming(false), 3000); }
+  };
+  return (
+    <button type="button" onClick={handleClick}
+      style={{ ...S.secondaryBtn, color: confirming ? "#FFF" : "#B65C68", background: confirming ? "#B65C68" : "#FFF", borderColor: confirming ? "#B65C68" : "#E9CDD1", ...style }}>
+      {confirming ? "다시 누르면 삭제돼요" : label}
+    </button>
+  );
+}
+
+/* 아이콘형 삭제 버튼: 위와 같은 2단계 확인이지만 목록 행처럼 공간이 좁은 곳에 씀 */
+function ConfirmDeleteIcon({ onConfirm, size = 14 }) {
+  const [confirming, setConfirming] = useState(false);
+  const timerRef = useRef(null);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
+  const handleClick = () => {
+    if (confirming) { clearTimeout(timerRef.current); setConfirming(false); onConfirm(); }
+    else { setConfirming(true); timerRef.current = setTimeout(() => setConfirming(false), 3000); }
+  };
+  return (
+    <button type="button" onClick={handleClick} title={confirming ? "다시 누르면 삭제돼요" : "삭제"}
+      style={{ ...S.iconBtn, background: confirming ? "#FBE4E6" : "none", borderRadius: 6 }}>
+      <Trash2 size={size} color="#B65C68" />
+    </button>
   );
 }
 
