@@ -9,7 +9,7 @@ import {
   Pill, Utensils, Droplets, Syringe, Footprints, ClipboardCheck, StickyNote,
   Check, Download, Upload, Pencil, Trash2, Plus, CalendarClock, Building2, X,
   Star, Wind, Scale, ChevronRight, Activity, Camera, Bell, BellOff,
-  SlidersHorizontal, Share2, ShieldCheck, MessageSquare,
+  SlidersHorizontal, Share2, ShieldCheck, MessageSquare, Search,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -838,6 +838,7 @@ export default function App({ onLogout, userEmail } = {}) {
   const desktop = useIsDesktop();
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("today");
+  const [hospitalSearchOpen, setHospitalSearchOpen] = useState(false);
   const [saveState, setSaveState] = useState("idle");
   const [quickOpen, setQuickOpen] = useState(false);
   const saveTimer = useRef(null);
@@ -1073,9 +1074,12 @@ export default function App({ onLogout, userEmail } = {}) {
       padding: "max(14px, calc(14px + env(safe-area-inset-top))) 16px 10px", flexShrink: 0,
     }}>
       <button onClick={scrollToTop} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 17, fontWeight: 700, color: "#1F2E26" }}>{tabLabel}</button>
-      <button onClick={toggleAlarm} style={S.iconBtn} aria-label={alarmOn ? "케어 시간 알림 켜짐" : "케어 시간 알림 꺼짐"}>
-        {alarmOn ? <Bell size={19} color="#2F5E45" /> : <BellOff size={19} color="#9AA5A0" />}
-      </button>
+      <div style={{ display: "flex", gap: 6 }}>
+        {tab === "hospital" && <button onClick={() => setHospitalSearchOpen((open) => !open)} style={S.iconBtn} aria-label="병원 일정과 진료 기록 검색"><Search size={19} color="#2F5E45" /></button>}
+        <button onClick={toggleAlarm} style={S.iconBtn} aria-label={alarmOn ? "케어 시간 알림 켜짐" : "케어 시간 알림 꺼짐"}>
+          {alarmOn ? <Bell size={19} color="#2F5E45" /> : <BellOff size={19} color="#9AA5A0" />}
+        </button>
+      </div>
     </div>
   );
 
@@ -1083,7 +1087,7 @@ export default function App({ onLogout, userEmail } = {}) {
     <>
       {tab === "today" && <TodayView data={data} update={update} goHospital={() => setTab("hospital")} goSettings={() => setTab("settings")} goReport={() => setTab("report")} />}
       {tab === "log" && <LogView data={data} update={update} />}
-      {tab === "hospital" && <HospitalView data={data} update={update} />}
+      {tab === "hospital" && <HospitalView data={data} update={update} searchOpen={hospitalSearchOpen} setSearchOpen={setHospitalSearchOpen} />}
       {tab === "report" && <ReportView data={data} />}
       {tab === "settings" && <SettingsView data={data} update={update} setData={setData} onLogout={handleLogout} userEmail={userEmail} />}
     </>
@@ -2574,18 +2578,39 @@ function ChartCard({ title, children, pointCount }) {
 }
 
 /* ───────────── 병원 탭 ───────────── */
-function HospitalView({ data, update }) {
+function HospitalView({ data, update, searchOpen, setSearchOpen }) {
   const [editNext, setEditNext] = useState(null); // null | 'new' | visit
   const [editVisit, setEditVisit] = useState(null);
   const [viewerSrc, setViewerSrc] = useState(null);
   const [playingVideo, setPlayingVideo] = useState(null);
   const today = todayStr();
+  const weekStartFor = (date) => addDays(date, -new Date(date + "T00:00").getDay());
+  const [weekStart, setWeekStart] = useState(() => weekStartFor(today));
+  const [selectedDate, setSelectedDate] = useState(today);
+  const [showAllSchedules, setShowAllSchedules] = useState(false);
+  const [hospitalQuery, setHospitalQuery] = useState("");
   const upcoming = [...(data.nextVisits || [])].sort((a, b) => a.date.localeCompare(b.date));
   const visits = [...data.vetVisits].sort((a, b) => b.date.localeCompare(a.date));
+  const weekDates = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const queryText = hospitalQuery.trim().toLowerCase();
+  const matchesHospital = (item) => !queryText || (item.hospital || "").toLowerCase().includes(queryText);
+  // 예정 일정은 언제나 전체를 보여주고, 날짜 선택은 진료 기록에만 적용한다.
+  const visibleSchedules = upcoming.filter(matchesHospital);
+  // 병원명을 검색할 때는 날짜별 보기 중이어도 전체 진료 기록에서 바로 찾는다.
+  const visibleVisits = visits.filter((v) => matchesHospital(v) && (showAllSchedules || queryText || v.date === selectedDate));
+  const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
+  const selectWeekDate = (date) => { setSelectedDate(date); setShowAllSchedules(false); };
 
   return (
     <div style={{ padding: "20px 16px" }}>
       <p style={{ fontSize: 12, color: "#6B7280", margin: "0 0 12px" }}>{data.pet.name}의 진료 예정과 다녀온 기록을 모아봤어요.</p>
+
+      {searchOpen && (
+        <div style={{ margin: "0 0 16px" }}>
+          <KInput value={hospitalQuery} onChange={(e) => setHospitalQuery(e.target.value)} placeholder="병원명으로 일정·기록 검색" autoFocus style={{ ...S.input, margin: 0, fontSize: 13 }} />
+          <div style={{ marginTop: 5, fontSize: 11, color: "#8A8F8A" }}>등록된 병원 일정과 진료 기록을 함께 검색합니다.</div>
+        </div>
+      )}
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
         <h3 style={S.h3}>다음 진료 예정</h3>
@@ -2594,13 +2619,15 @@ function HospitalView({ data, update }) {
         </button>
       </div>
 
-      {upcoming.length === 0 && (
+      <div style={{ fontSize: 12, color: "#6B7280", margin: "-2px 0 10px" }}>등록한 병원 일정 전체</div>
+
+      {visibleSchedules.length === 0 && (
         <div style={{ ...S.card, marginBottom: 4 }}>
           <div style={{ fontSize: 13, color: "#9AA5A0" }}>예정된 진료가 없어요. 위 버튼으로 추가해보세요. 같은 달에 다른 병원 일정이 있다면 각각 따로 추가할 수 있어요.</div>
         </div>
       )}
 
-      {upcoming.map((v) => {
+      {visibleSchedules.map((v) => {
         const dLeft = daysBetween(today, v.date);
         const overdue = dLeft < 0;
         return (
@@ -2630,17 +2657,40 @@ function HospitalView({ data, update }) {
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 24 }}>
         <h3 style={S.h3}>진료 기록</h3>
-        <button style={{ ...S.chip, display: "flex", alignItems: "center", gap: 4, fontSize: 12 }} onClick={() => setEditVisit("new")}>
-          <Plus size={14} /> 기록 추가
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => setShowAllSchedules((v) => !v)} style={{ ...S.chip, fontSize: 12, background: showAllSchedules ? "#3E7C59" : "#FFF", borderColor: showAllSchedules ? "#3E7C59" : "#CFE2D3", color: showAllSchedules ? "#FFF" : "#2F5E45" }}>{showAllSchedules ? "날짜별 보기" : "전체 기록"}</button>
+          <button style={{ ...S.chip, display: "flex", alignItems: "center", gap: 4, fontSize: 12 }} onClick={() => setEditVisit("new")}>
+            <Plus size={14} /> 기록 추가
+          </button>
+        </div>
       </div>
 
-      {visits.length === 0 && (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "14px 0 12px" }}>
+        <button onClick={() => { const next = addDays(weekStart, -7); setWeekStart(next); setSelectedDate(next); setShowAllSchedules(false); }} style={{ ...S.iconBtn, fontSize: 20 }} aria-label="이전 주">‹</button>
+        <button onClick={() => { setWeekStart(weekStartFor(today)); setSelectedDate(today); setShowAllSchedules(false); }} style={{ border: "none", background: "transparent", padding: "6px 12px", cursor: "pointer", fontSize: 16, fontWeight: 800, color: "#1F2E26" }} title="이번 주로 이동">{fmtShort(weekDates[0])} – {fmtShort(weekDates[6])}</button>
+        <button onClick={() => { const next = addDays(weekStart, 7); setWeekStart(next); setSelectedDate(next); setShowAllSchedules(false); }} style={{ ...S.iconBtn, fontSize: 20 }} aria-label="다음 주">›</button>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 12 }}>
+        {weekDates.map((date, i) => {
+          const active = !showAllSchedules && date === selectedDate;
+          const day = Number(date.slice(-2));
+          return <button key={date} onClick={() => selectWeekDate(date)} style={{ border: active ? "1.5px solid #3E7C59" : "1px solid #E5EAE6", borderRadius: 13, padding: "9px 2px", background: active ? "#F1F8F2" : "#FFF", cursor: "pointer", minHeight: 68 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: i === 0 ? "#E0554F" : i === 6 ? "#5D7EE8" : "#6B7280", marginBottom: 5 }}>{weekLabels[i]}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#1F2E26" }}>{day}</div>
+            {visits.some((v) => v.date === date) && <div style={{ width: 4, height: 4, borderRadius: 4, background: "#3E7C59", margin: "5px auto 0" }} />}
+          </button>;
+        })}
+      </div>
+
+      <div style={{ fontSize: 12, color: "#6B7280", margin: "-2px 0 10px" }}>{queryText ? `“${hospitalQuery.trim()}” 검색 결과` : showAllSchedules ? "등록한 전체 진료 기록" : `${fmtDate(selectedDate)} 진료 기록`}</div>
+
+      {visibleVisits.length === 0 && (
         <div style={S.empty}>아직 진료 기록이 없어요.<br />다녀온 진료의 결과와 소견을 남겨두면<br />다음 진료 때 비교하기 좋아요.</div>
       )}
 
       <div style={{ marginTop: 10 }}>
-        {visits.map((v) => (
+        {visibleVisits.map((v) => (
           <div key={v.id} style={{ ...S.card, marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Building2 size={16} color="#3E7C59" />
