@@ -2,8 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
+const basePath = process.env.VITE_BASE_PATH || "/";
+
 export default defineConfig({
-  base: "/",
+  base: basePath,
   plugins: [
     react(),
     VitePWA({
@@ -13,8 +15,8 @@ export default defineConfig({
         name: "PetCare+",
         short_name: "PetCare+",
         description: "PetCare+ 반려동물 관리 앱",
-        start_url: "/",
-        scope: "/",
+        start_url: basePath,
+        scope: basePath,
         display: "standalone",
         background_color: "#F4F6F2",
         theme_color: "#F4F6F2",
