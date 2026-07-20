@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  base: "/petcareplus/",
+  base: "/",
   plugins: [
     react(),
     VitePWA({
@@ -13,8 +13,8 @@ export default defineConfig({
         name: "PetCare+",
         short_name: "PetCare+",
         description: "PetCare+ 반려동물 관리 앱",
-        start_url: "/petcareplus/",
-        scope: "/petcareplus/",
+        start_url: "/",
+        scope: "/",
         display: "standalone",
         background_color: "#F4F6F2",
         theme_color: "#F4F6F2",

@@ -10,13 +10,28 @@ export default function AuthGate() {
   const [signingIn, setSigningIn] = useState(false);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (u) => {
+    let resolved = false;
+    const fallback = setTimeout(() => {
+      if (!resolved) setUser(null);
+    }, 6000);
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      resolved = true;
+      clearTimeout(fallback);
       if (u) {
         window.storage = createFirestoreStorage(u.uid);
         window.structuredStorage = createStructuredStorage(u.uid);
       }
       setUser(u);
+    }, (e) => {
+      console.error(e);
+      resolved = true;
+      clearTimeout(fallback);
+      setUser(null);
     });
+    return () => {
+      clearTimeout(fallback);
+      unsubscribe();
+    };
   }, []);
 
   const handleLogin = async () => {
